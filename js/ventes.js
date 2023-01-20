@@ -91,14 +91,14 @@ function new_state() {
 }
 
 /** Crée l'objet qui gère les données du clavier visuel,
- * avec 0 pour valeur par défaut à tout les champs.
+ * avec '' pour valeur par défaut à tout les champs.
  * @return {Numpad}
 */
 function new_numpad() {
   return {
-    prix: 0,
-    quantite: 0,
-    masse: 0.0,
+    prix: '',
+    quantite: '',
+    masse: '',
   };
 }
 
@@ -218,10 +218,16 @@ function get_numpad() {
  * - masse de l'item
  *
  */
-function update_state({ type, objet = { prix: 0, masse: 0.0 } }) {
-  numpad.prix = objet.prix;
+function update_state({ type, objet }) {
+  numpad = get_numpad();
+  if (objet) {
+    numpad.prix = objet.prix;
+  } else {
+    objet = { prix: 0, masse: 0.0 }
+  }
+  numpad.prix = (Number.isNaN(numpad.prix)) ? '' : numpad.prix;
+  numpad.masse = (Number.isNaN(numpad.masse)) ? '' : numpad.masse;
   numpad.quantite = 1;
-  numpad.masse = objet.masse || 0.0;
   state.last = { type, objet };
   const color = objet.couleur || type.couleur;
   const name = objet.nom || type.nom;
@@ -487,12 +493,18 @@ document.addEventListener('DOMContentLoaded', () => {
   $('#typeVente').bootstrapSwitch();
   $('#typeVente').on('switchChange.bootstrapSwitch', (event, checked) => {
     const args = (checked
-      ? ['Vente à: ', 'Prix unitaire:', 'Masse unitaire: ', 'white']
-      : ['Vente au: ', 'Prix du lot: ', 'Masse du lot: ', '#E8E6BC']
+      ? ['Vente au: ', 'Prix du lot: ', 'Masse du lot: ', 'white']
+      : ['Vente à: ', 'Prix unitaire:', 'Masse unitaire: ', '#E8E6BC']
     );
     lot_or_unite(...args);
-    state.vente_unite = checked;
+    state.vente_unite = !checked;
   });
+  if (!window.OressourceEnv.lots) {
+    document.getElementById('labelprix').textContent = 'Prix unitaire:';
+    if (window.OressourceEnv.pesees) {
+      document.getElementById('labelmasse').textContent = 'Masse unitaire: ';
+    }
+  };
 
   const url = '../api/ventes.php';
   const ventePrint = (

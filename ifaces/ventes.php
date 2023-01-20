@@ -97,20 +97,20 @@ if (is_valid_session() && is_allowed_vente_id($numero)) {
 
         <div class="panel-body" id="panelcalc">
           <?php if (ventes_lots()) { ?>
-            <label id="labellot" for="typeVente">Vente à:</label>
-            <input class="make-switch" id="typeVente" type="checkbox" name="my-checkbox" checked data-on-text="l'unité" data-off-text="lot" data-handle-width="28" data-size="small">
+            <label id="labellot" for="typeVente">Vente au:</label>
+            <input class="make-switch" id="typeVente" type="checkbox" name="my-checkbox" checked data-on-text="lot" data-off-text="l'unité" data-handle-width="28" data-size="small">
           <?php } ?>
-
           <label id="labelquantite" for="quantite">Quantité:</label>
           <input type="number" class="form-control" placeholder="Quantité" id="quantite" min="0" onfocus="fokus(this)">
 
-          <label id="labelprix" for="prix">Prix unitaire:</label>
+          <label id="labelprix" for="prix">Prix du lot:</label>
           <input type="text" class="form-control" placeholder="€" id="prix" onfocus="fokus(this)">
 
           <?php if (pesees_ventes()) { ?>
-            <label id="labelmasse" for="masse">Masse unitaire:</label>
+            <label id="labelmasse" for="masse">Masse du lot:</label>
             <input type="text" class="form-control" placeholder="Kgs." id="masse" onfocus="fokus(this)">
           <?php } ?>
+
           <br />
 
           <button type="button" class="btn btn-default btn-lg" onclick="add();">
@@ -239,6 +239,7 @@ if (is_valid_session() && is_allowed_vente_id($numero)) {
       nb_viz_caisse: <?= json_encode($_SESSION['nb_viz_caisse'], JSON_NUMERIC_CHECK); ?>,
       force_pes_vente: <?= json_encode($_SESSION['force_pes_vente']); ?>,
       pesees: <?= json_encode(pesees_ventes()) ?>,
+      lots: <?= json_encode(ventes_lots()) ?>,
       visualisation: <?= json_encode($_SESSION['viz_caisse']) ?>,
       tva_active: <?= json_encode($_SESSION['tva_active']); ?>,
       taux_tva: <?= json_encode($_SESSION['taux_tva'], JSON_NUMERIC_CHECK); ?>,
