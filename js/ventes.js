@@ -236,15 +236,36 @@ function update_state({ type, objet }) {
   render_numpad(numpad);
 }
 
+// Effectue l'affichage temporaire des 3 dernières ventes sur la page de vente 
+function update_historique(data, response) {
+  const historique = document.querySelector(".table tbody");
+  if (historique.childElementCount === 3) {
+    const lChild = historique.lastElementChild;
+    lChild.remove()
+  }
+  const row = document.createElement("tr");
+  const idCell = document.createElement('td');
+  idCell.innerText = response.id;
+  const dateCell = document.createElement('td');
+  dateCell.innerText = moment().format('DD/MM/YYYY - HH:mm');
+  const prixCell = document.createElement('td');
+  prixCell.innerText = state.ticket.sum_prix();
+  const objetCell = document.createElement('td');
+  objetCell.innerText = data.items.length;
+  row.append(idCell, dateCell, prixCell, objetCell);
+  historique.prepend(row);
+}
 /**
- * Effectue le reset des données représentant une vente et de l'interface graphique.
+ * Effectue le reset des données représentant une vente et de l'interface graphique. Met à jour l'affichage des 3 dernières ventes.
  */
-function reset(_, response) {
+function reset(data, response) {
+  update_historique(data, response);
   state = new_state();
 
   reset_numpad();
   reset_rendu();
   reset_paiement();
+
 
   // On remet à zéro le panier
   {

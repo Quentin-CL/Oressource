@@ -39,14 +39,14 @@ if (is_valid_session() && is_allowed_vente_id($numero)) {
   $moyens_paiement = filter_visibles(moyens_paiements($bdd));
 ?>
 
-  <div class="container">
-    <nav class="navbar">
+  <div class="container" style="width: 90vw">
+
+    <nav class="navbar col-md-offset-1">
       <div class="header-header">
         <h1><?= $point_vente['nom']; ?></h1>
       </div>
     </nav>
-
-    <div class="col-md-4">
+    <div class="col-md-4 col-md-offset-1">
       <div class="panel panel-info">
         <div class="panel-heading">
           <h3 class="panel-title">Type d'objet:</h3>
@@ -222,13 +222,34 @@ if (is_valid_session() && is_allowed_vente_id($numero)) {
           </div>
         </div>
       </div>
+      <?php if ($_SESSION['viz_caisse']) { ?>
+
+        <a href="viz_caisse.php?numero=<?= $numero; ?>" target="_blank">Visualiser les <?= $_SESSION['nb_viz_caisse']; ?> dernieres ventes</a>
+        <table class="table" style="text-align: center;">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Date de création</th>
+              <th>Crédit</th>
+              <th>Nombre d'objets</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <!-- <?php foreach (viz_caisse($bdd, $numero, 3) as $vente) { ?>
+              <tr>
+                <td><?= $vente['id']; ?></td>
+                <td><?= $vente['date_creation']; ?></td>
+                <td><?= $vente['credit']; ?></td>
+                <td><?= $vente['quantite']; ?></td>
+              </tr>
+            <?php } ?> -->
+          </tbody>
+        </table>
+      <?php } ?>
     </div>
 
-    <?php if ($_SESSION['viz_caisse']) { ?>
-      <div id="visualisation" class="col-md-2 col-md-offset-2" style="width: 330px;">
-        <a href="viz_caisse.php?numero=<?= $numero; ?>" target="_blank">Visualiser les <?= $_SESSION['nb_viz_caisse']; ?> dernieres ventes</a>
-      </div>
-    <?php } ?>
+
   </div>
   <script type="text/javascript">
     'use scrict';
