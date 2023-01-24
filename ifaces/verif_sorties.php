@@ -16,10 +16,11 @@
   You should have received a copy of the GNU Affero General Public License
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-function VerifSortiesTable(array $props) {
+function VerifSortiesTable(array $props)
+{
   $users = $props['users'];
   ob_start();
-  ?>
+?>
   <div class="panel panel-info">
     <div class="panel-heading">
       <h3 class="panel-title"><?= $props['h3'] ?></h3>
@@ -58,7 +59,7 @@ function VerifSortiesTable(array $props) {
       </table>
     </div>
   </div>
-  <?php
+<?php
   return ob_get_clean();
 }
 
@@ -198,7 +199,7 @@ if (is_valid_session() && is_allowed_verifications()) {
     'users' => $users
   ];
   require_once 'tete.php';
-  ?>
+?>
   <div class="container">
     <?= headerVerif($base) ?>
     <?=
@@ -225,19 +226,19 @@ if (is_valid_session() && is_allowed_verifications()) {
     <?=
     VerifSortiesTable(array_merge($base, [
       'h3' => 'Sorties poubelles :',
-      'data' => $sortiesPoubelles,
+      'data' => [[...$sortiesPoubelles[0], 'nom' => 'Poubelles']],
     ]));
     ?>
 
     <?=
     VerifSortiesTable(array_merge($base, [
       'h3' => 'Sorties déchetterie :',
-      'data' => $sortiesDechetterie,
+      'data' => [[...$sortiesDechetterie[0], 'nom' => 'Déchetterie']]
     ]));
     ?>
 
   </div><!-- /.container -->
-  <?php
+<?php
   require_once 'pied.php';
 } else {
   header('Location: ../moteur/destroy.php');

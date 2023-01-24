@@ -21,6 +21,8 @@ Version comprenant des ameliorations d'ergonomie du logiciel et d'ajout de fonct
 - Changement du style des types d'objet
 - Vendu en lot par defaut
 - Suppression du 0 par defaut dans l'input prix unitaire et masse unitaire de l'onglet point de vente
+- Correction d'un bug qui rendait impossible l'ajout de sortie hors-boutique. Il y avait une violation de contrainte de clé étrangère lors de l'ajout ou de la mise à jour d'une ligne enfant dans la table "pesees_sorties". Il s'agit d'une erreur de la base de données SQL qui se produit lorsqu'une valeur de clé étrangère dans la table "pesees_sorties" ne correspond à aucune valeur de clé primaire dans la table "types_poubelles" par exemple. Correction en mettant une valeur par defaut "Null" à ces clés étrangeres.
+- Correction du nom manquant pour les sorties poubelles et déchetterie dans la visualisation des sorties hors-boutique.
 
 ### Version v0.3.x
 
