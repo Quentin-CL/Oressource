@@ -40,12 +40,12 @@ if (is_valid_session() && is_allowed_collecte_id($numero)) {
   $date = new Datetime('now');
 ?>
 
-  <div class="container">
+  <div class="container" style="width: 80vw;">
     <div class="header-header">
       <h1><?= $point_collecte['nom']; ?></h1>
     </div>
     <div class="row">
-      <?= cartList(['text' => "Bon d'apport: 0 Kg.", 'date' => $date->format('Y-m-d')]) ?>
+
 
       <div class="col-md-4">
         <div class="panel panel-info">
@@ -76,6 +76,8 @@ if (is_valid_session() && is_allowed_collecte_id($numero)) {
         <?= listSaisie(['text' => "Type d'objet:", 'key' => 'list_item']) ?>
         <?= buttonCollectesSorties() ?>
       </div>
+
+      <?= cartList(['text' => "Bon d'apport: 0 Kg.", 'date' => $date->format('Y-m-d')]) ?>
     </div> <!-- row -->
   </div> <!--container-->
 

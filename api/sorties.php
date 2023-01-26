@@ -21,7 +21,6 @@
 // TODO: Verifier que les objets correspondent bien possibilites du recycleur.
 
 global $bdd;
-
 require_once('../core/session.php');
 require_once('../core/validation.php');
 require_once('../core/requetes.php');
@@ -43,7 +42,8 @@ require_once('../core/requetes.php');
  * SI un des champs est invalide le serveur reponds 400 Bad request avec un objet json
  * detaillant l'erreur.
  */
-function insert_pesee_sortie(PDO $bdd, int $id_sortie, array $sortie, array $items, string $id_type_field) {
+function insert_pesee_sortie(PDO $bdd, int $id_sortie, array $sortie, array $items, string $id_type_field)
+{
   $sql = "INSERT INTO pesees_sorties (
     timestamp,
     last_hero_timestamp,
@@ -81,7 +81,8 @@ function insert_pesee_sortie(PDO $bdd, int $id_sortie, array $sortie, array $ite
   }
 }
 
-function specialise_sortie(PDOStatement $stmt, array $sortie): PDOStatement {
+function specialise_sortie(PDOStatement $stmt, array $sortie): PDOStatement
+{
   $classe = $sortie['classe'];
   // Sorties Dons
   if ($classe === 'sorties') {
@@ -108,7 +109,8 @@ function specialise_sortie(PDOStatement $stmt, array $sortie): PDOStatement {
   return $stmt;
 }
 
-function insert_sortie(PDO $bdd, array $sortie): int {
+function insert_sortie(PDO $bdd, array $sortie): int
+{
   $sql = 'INSERT INTO sorties (
       timestamp,
       last_hero_timestamp,
@@ -157,13 +159,13 @@ if (is_valid_session()) {
       $json = validate_json_sorties($unsafe_json);
     } catch (UnexpectedValueException $e) {
       http_response_code(400); // Bad Request
-      echo(json_encode(['error' => $e->getMessage()]));
+      echo (json_encode(['error' => $e->getMessage()]));
       die();
     }
 
     if (!is_allowed_sortie_id($json['id_point'])) {
       http_response_code(403); // Forbiden.
-      echo(json_encode(['error' => 'Action interdite.'], JSON_FORCE_OBJECT));
+      echo (json_encode(['error' => 'Action interdite.'], JSON_FORCE_OBJECT));
       die();
     }
     $timestamp = allowDate($json) ? parseDate($json['date']) : new DateTime('now');
@@ -190,10 +192,12 @@ if (is_valid_session()) {
     }
 
     if (count($json['evacs'] ?? []) > 0) {
-      if ($sortie['classe'] === 'sortiesd'
+      if (
+        $sortie['classe'] === 'sortiesd'
         || $sortie['classe'] === 'sortiesc'
         || $sortie['classe'] === 'sortiesr'
-        || $sortie['classe'] === 'sorties') {
+        || $sortie['classe'] === 'sorties'
+      ) {
         insert_pesee_sortie($bdd, $id_sortie, $sortie, $json['evacs'], 'id_type_dechet_evac');
         $requete_OK = true;
       } elseif ($sortie['classe'] === 'sortiesp') {
@@ -206,21 +210,21 @@ if (is_valid_session()) {
     if ($requete_OK) {
       $bdd->commit();
       http_response_code(200); // OK
-      echo(json_encode(['id' => $id_sortie], JSON_NUMERIC_CHECK));
+      echo (json_encode(['id' => $id_sortie], JSON_NUMERIC_CHECK));
     } else {
       throw new UnexpectedValueException("Sortie invalide.");
     }
   } catch (UnexpectedValueException $e) {
     $bdd->rollBack();
     http_response_code(400); // Bad Request
-    echo(json_encode(['error' => $e->getMessage()], JSON_FORCE_OBJECT));
+    echo (json_encode(['error' => $e->getMessage()], JSON_FORCE_OBJECT));
   } catch (PDOException $e) {
     $bdd->rollBack();
     http_response_code(500); // Internal Server Error
-    echo(json_encode(['error' => 'Une erreur est survenue dans Oressource sortie annulée.']));
+    echo (json_encode(['error' => 'Une erreur est survenue dans Oressource sortie annulée.']));
     throw $e;
   }
 } else {
   http_response_code(401); // Unauthorized.
-  echo(json_encode(['error' => "Session Invalide ou expiree."], JSON_FORCE_OBJECT));
+  echo (json_encode(['error' => "Session Invalide ou expiree."], JSON_FORCE_OBJECT));
 }

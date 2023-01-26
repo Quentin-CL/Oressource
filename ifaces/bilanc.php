@@ -24,7 +24,8 @@ require_once '../core/session.php';
 require_once '../core/requetes.php';
 require_once '../core/composants.php';
 
-function BilanCollectes1(PDO $bdd, int $id, int $typeCollecte, $start, $fin): array {
+function BilanCollectes1(PDO $bdd, int $id, int $typeCollecte, $start, $fin): array
+{
   $numero = ($id > 0 ? " AND collectes.id_point_collecte = $id " : ' ');
   $sql = 'SELECT
   type_dechets.id,
@@ -46,7 +47,8 @@ ORDER BY somme DESC';
   return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-function BilanCollecte3(PDO $bdd, int $id, int $localite, $start, $fin): array {
+function BilanCollecte3(PDO $bdd, int $id, int $localite, $start, $fin): array
+{
   $numero = ($id > 0 ? " AND collectes.id_point_collecte = $id " : ' ');
   $sql = "SELECT
     type_dechets.id,
@@ -70,7 +72,8 @@ function BilanCollecte3(PDO $bdd, int $id, int $localite, $start, $fin): array {
   return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-function MorrisCollecteMasse(PDO $bdd, int $id, $start, $end): array {
+function MorrisCollecteMasse(PDO $bdd, int $id, $start, $end): array
+{
   $numero = ($id > 0 ? " AND collectes.id_point_collecte = $id " : ' ');
   $sql = "SELECT
     type_collecte.id,
@@ -95,7 +98,8 @@ function MorrisCollecteMasse(PDO $bdd, int $id, $start, $end): array {
   return $result;
 }
 
-function MorrisCollecteMasseTot(PDO $bdd, int $id, $start, $end): array {
+function MorrisCollecteMasseTot(PDO $bdd, int $id, $start, $end): array
+{
   $numero = ($id > 0 ? " AND collectes.id_point_collecte = $id " : ' ');
   $sql = "SELECT
     type_dechets.id,
@@ -119,7 +123,8 @@ function MorrisCollecteMasseTot(PDO $bdd, int $id, $start, $end): array {
   return $result;
 }
 
-function MorrisCollecteLoca(PDO $bdd, int $id, $start, $end): array {
+function MorrisCollecteLoca(PDO $bdd, int $id, $start, $end): array
+{
   $numero = ($id > 0 ? " AND collectes.id_point_collecte = $id " : ' ');
   $sql = "SELECT
     localites.id localite,
@@ -161,17 +166,17 @@ if (is_valid_session() && is_allowed_bilan()) {
   $collectes_MasseTot = MorrisCollecteMasseTot($bdd, $numero, $time_debut, $time_fin);
 
   $data = [
-    'masse' => array_reduce($collectes_TypesCollectes, function($acc, $e) {
-        return $acc + $e['somme'];
-      }, 0),
+    'masse' => array_reduce($collectes_TypesCollectes, function ($acc, $e) {
+      return $acc + $e['somme'];
+    }, 0),
   ];
-  ?>
+?>
 
   <div class="container">
     <div class="row">
       <div class="col-md-11">
         <h1>Bilan global</h1>
-        <div class="col-md-4 col-md-offset-8" >
+        <div class="col-md-4 col-md-offset-8">
           <?= datePicker() ?>
         </div>
 
@@ -185,7 +190,7 @@ if (is_valid_session() && is_allowed_bilan()) {
   </div>
 
   <div class="row">
-    <div class="col-md-8 col-md-offset-1" >
+    <div class="col-md-8 col-md-offset-1">
       <h2> Bilan des collectes de la structure</h2>
       <ul class="nav nav-tabs">
         <?php foreach ($points_collectes as $p) { ?>
@@ -203,45 +208,44 @@ if (is_valid_session() && is_allowed_bilan()) {
         <h2><?= $date1 === $date2 ? "Le {$date1}," : " Du {$date1} au {$date2}," ?>
           Masse collectée: <?= $data['masse'] ?> kg<?= $numero === 0 ? ' , sur ' . count($points_collectes) . ' Point(s) de collecte' : '' ?>.</h2>
         <?php if ($data['masse'] > 0) { ?>
-        <div class="col-md-6">
-          <div class="panel panel-default">
-            <div class="panel-heading">
-              <h3 class="panel-title">Répartition par types d'objets</h3>
-            </div>
+          <div class="col-md-6">
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <h3 class="panel-title">Répartition par types d'objets</h3>
+              </div>
 
-            <div class="panel-body">
-              <table class="table table-condensed table-striped table table-bordered table-hover" style="border-collapse:collapse;">
-                <thead>
-                  <tr>
-                    <th style="width:300px">type d'objet</th>
-                    <th>Masse collectée</th>
-                    <th>%</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  <?php foreach ($collectes_MasseTot as $a) { ?>
-                    <tr data-toggle="collapse" data-target=".partyp<?= $a['nom']; ?>">
-                      <td><a href="jours.php?date1=<?= $date1 ?>&date2=<?= $date2 ?>&type=<?= $a['id'] ?>"><?= $a['nom'] ?></a></td>
-                      <td><?= $a['somme']; ?></td>
-                      <td><?= round($a['somme'] * 100 / $data['masse'], 2); ?></td>
+              <div class="panel-body">
+                <table class="table table-condensed table-striped table table-bordered table-hover" style="border-collapse:collapse;">
+                  <thead>
+                    <tr>
+                      <th style="width:300px">type d'objet</th>
+                      <th>Masse collectée</th>
+                      <th>%</th>
                     </tr>
+                  </thead>
 
-                  <?php } ?>
-                </tbody>
-              </table>
+                  <tbody>
+                    <?php foreach ($collectes_MasseTot as $a) { ?>
+                      <tr data-toggle="collapse" data-target=".partyp<?= $a['nom']; ?>">
+                        <td><a href="jours.php?date1=<?= $date1 ?>&date2=<?= $date2 ?>&type=<?= $a['id'] ?>"><?= $a['nom'] ?></a></td>
+                        <td><?= $a['somme']; ?></td>
+                        <td><?= round($a['somme'] * 100 / $data['masse'], 2); ?></td>
+                      </tr>
 
-              <div id="graph2masse" style="height: 180px;"></div> <br><br>
+                    <?php } ?>
+                  </tbody>
+                </table>
 
-              <!-- TODO: refaire cette fonctionnalité
-              <a href="../moteur/export_bilanc_parloca.php?numero=<?= $numero ?>&date1=<?= $date1 ?>&date2=<?= $date2; ?>">
-                <button type="button" class="btn btn-default btn-xs" disabled>exporter ces données (.csv) </button>
-              </a>
-              -->
+                <div id="graph2masse" style="height: 180px;"></div> <br><br>
+
+                <a href="../moteur/export_bilanc_partype.php?numero=<?= $numero ?>&date1=<?= $date1 ?>&date2=<?= $date2 ?>">
+                  <button type="button" class="btn btn-default btn-xs" disabled>Exporter ces données (.csv)</button>
+                </a>
+
+              </div>
             </div>
           </div>
-      </div>
-         <div class="col-md-6">
+          <div class="col-md-6">
             <div class="panel panel-default">
               <div class="panel-heading">
                 <h3 class="panel-title">Répartition par types de collectes</h3>
@@ -282,15 +286,10 @@ if (is_valid_session() && is_allowed_bilan()) {
 
                 <div id="graphmasse" style="height: 180px;"></div>
 
-                <!-- TODO: refaire cette fonctionnalité
-                <a href="../moteur/export_bilanc_partype.php?numero=<?= $numero ?>&date1=<?= $date1 ?>&date2=<?= $date2 ?>">
-                  <button type="button" class="btn btn-default btn-xs" disabled>exporter ces données (.csv)</button>
-                </a>
-                -->
               </div>
             </div>
           </div>
-       <div class="col-md-6">
+          <div class="col-md-6">
             <div class="panel panel-default">
               <div class="panel-heading">
                 <h3 class="panel-title">Répartition par localité</h3>
@@ -331,20 +330,19 @@ if (is_valid_session() && is_allowed_bilan()) {
 
                 <div id="graphloca" style="height: 180px;"></div>
 
-                <!-- TODO: refaire cette fonctionnalité
                 <a href="../moteur/export_bilanc_parloca.php?numero=<?= $numero ?>&date1=<?= $date1 ?>&date2=<?= $date2; ?>">
-                  <button type="button" class="btn btn-default btn-xs" disabled>exporter ces données (.csv) </button>
+                  <button type="button" class="btn btn-default btn-xs" disabled>Exporter ces données (.csv) </button>
                 </a>
-                -->
+
               </div>
             </div>
           </div>
-    </div>
+      </div>
     <?php } else { ?>
       <img src="../images/nodata.jpg" class="img-responsive" alt="Responsive image">
     <?php } ?>
+    </div>
   </div>
-</div>
   <script type="text/javascript">
     'use strict';
 
@@ -354,7 +352,7 @@ if (is_valid_session() && is_allowed_bilan()) {
       graphMorris(<?= json_encode(data_graphs($collectes_loca)) ?>, 'graphloca');
     });
   </script>
-  <?php
+<?php
   require_once 'pied.php';
 } else {
   header('Location: ../moteur/destroy.php');

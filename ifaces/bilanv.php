@@ -48,7 +48,7 @@ if (is_valid_session() && is_allowed_bilan()) {
   $points_ventes = filter_visibles(points_ventes($bdd));
 
   $bilan_pesee_mix = array_reduce(array_keys($bilans_pesees_types), function ($acc, $e)
-    use ($bilans_pesees_types, $bilans_types) {
+  use ($bilans_pesees_types, $bilans_types) {
     if (isset($bilans_types[$e])) {
       $acc[$e] = array_merge($bilans_types[$e], $bilans_pesees_types[$e]);
       return $acc;
@@ -56,17 +56,17 @@ if (is_valid_session() && is_allowed_bilan()) {
     return $acc;
   }, []);
 
-  $panier_moyen = $nb_ventes === 0 ? 'Non défini': ($bilans['chiffre_degage'] / $nb_ventes) ."€";
+  $panier_moyen = $nb_ventes === 0 ? 'Non défini' : ($bilans['chiffre_degage'] / $nb_ventes) . "€";
 
   $graphMv = data_graphs_from_bilan($bilans_pesees_types, 'vendu_masse');
   $graphPv = data_graphs_from_bilan($bilans_types, 'chiffre_degage');
-  ?>
+?>
 
   <div class="container">
     <div class="row">
-      <div class="col-md-11" >
+      <div class="col-md-11">
         <h1>Bilan global</h1>
-        <div class="col-md-4 col-md-offset-8" >
+        <div class="col-md-4 col-md-offset-8">
           <?= datePicker() ?>
         </div>
 
@@ -83,9 +83,9 @@ if (is_valid_session() && is_allowed_bilan()) {
     </div> <!-- row -->
   </div> <!-- container -->
 
-  <hr/>
+  <hr />
   <div class="row">
-    <div class="col-md-8 col-md-offset-1" >
+    <div class="col-md-8 col-md-offset-1">
       <h2>Bilan des ventes de la structure</h2>
       <ul class="nav nav-tabs">
         <?php foreach ($points_ventes as $point_vente) { ?>
@@ -102,7 +102,7 @@ if (is_valid_session() && is_allowed_bilan()) {
         <h2><?= ($date1 === $date2) ? "Le $date1" : "Du $date1 au $date2"; ?> :</h2>
         <?php if (!($nb_ventes > 0 || $remb_nb > 0)) { ?>
           <img src="../images/nodata.jpg" class="img-responsive" alt="Responsive image">
-          <?php
+        <?php
         } else { ?>
           <div class="row">
             <div class="col-md-6">
@@ -115,7 +115,7 @@ if (is_valid_session() && is_allowed_bilan()) {
                     </tr>
                   <?php } ?>
                   <tr>
-                    <td>Chiffre total dégagé  :</td>
+                    <td>Chiffre total dégagé :</td>
                     <td><?= $bilans['chiffre_degage']; ?> €</td>
                   </tr>
                   <tr>
@@ -150,15 +150,18 @@ if (is_valid_session() && is_allowed_bilan()) {
                 </tbody>
 
                 <tfoot>
-                  <!--
+
                   <tr>
                     <td align=center colspan=3>
                       <a href="../moteur/export_bilanv.php?numero=<?= $numero; ?>&<?= $date_query; ?>">
-                        <button type="button" class="btn btn-default btn-xs">Exporter les ventes de cette période (.csv)</button>
+                        <button type="button" class="btn btn-default btn-xs" style="margin-bottom: 5px;">Exporter les ventes de cette période (.csv)</button>
+                      </a>
+                      <a href="../moteur/export_bilanv_partype.php?numero=<?= $numero; ?>&<?= $date_query; ?>">
+                        <button type="button" class="btn btn-default btn-xs">Exporter les ventes de cette période par type (.csv)</button>
                       </a>
                     </td>
                   </tr>
-                  -->
+
                   <br>
                 </tfoot>
               </table>
@@ -266,7 +269,7 @@ if (is_valid_session() && is_allowed_bilan()) {
                     $Gvalue = round($certitude * 2.55, 0);
                     //on traduit le pourcentage en valeur de rouge 0% = tout rouge
                     $Rvalue = round(255 - $Gvalue, 0);
-                    ?>
+                  ?>
                     <tr>
                       <th scope="row">
                         <a href="./jours.php?<?= $date_query; ?>&type=<?= $id; ?>"><?= $bilan_mix['nom']; ?></a>
@@ -278,10 +281,7 @@ if (is_valid_session() && is_allowed_bilan()) {
                       <td><?= round($prix_tonne_estime, 2); ?></td>
                       <td><?= round(($chiffre_degage / $prix_tonne_estime) * 1000, 2); ?></td>
                       <td>
-                        <span class='badge'
-                              id='Bcertitude'
-                              style='background-color: RGB(<?= $Rvalue; ?>,<?= $Gvalue; ?>,0);'
-                              ><?= $certitude; ?> %</span>
+                        <span class='badge' id='Bcertitude' style='background-color: RGB(<?= $Rvalue; ?>,<?= $Gvalue; ?>,0);'><?= $certitude; ?> %</span>
                       </td>
                     </tr>
                   <?php } ?>
@@ -302,14 +302,14 @@ if (is_valid_session() && is_allowed_bilan()) {
     'use strict';
 
     $(document).ready(() => {
-        const dataMv = <?= json_encode($graphMv, JSON_NUMERIC_CHECK); ?>;
-        graphMorris(dataMv, 'graphMV', 'Kgs.');
-         const dataPv = <?= json_encode($graphPv, JSON_NUMERIC_CHECK); ?>;
-        graphMorris(dataPv, 'graphPV', '€');
+      const dataMv = <?= json_encode($graphMv, JSON_NUMERIC_CHECK); ?>;
+      graphMorris(dataMv, 'graphMV', 'Kgs.');
+      const dataPv = <?= json_encode($graphPv, JSON_NUMERIC_CHECK); ?>;
+      graphMorris(dataPv, 'graphPV', '€');
     });
   </script>
 
-  <?php
+<?php
   require_once 'pied.php';
 } else {
   header('Location: ../moteur/destroy.php');

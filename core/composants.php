@@ -22,7 +22,8 @@ require_once '../core/validation.php';
 /* Fonction utile pour la nav des sorties. */
 
 
-function new_nav_sorties(): array {
+function new_nav_sorties(): array
+{
   $links = [
     ['visible' => affichage_sortie_poubelle(), 'href' => "sortiesp.php", 'text' => 'Poubelles'],
     ['visible' => affichage_sortie_partenaires(), 'href' => "sortiesc.php", 'text' => 'Sorties partenaires'],
@@ -39,7 +40,8 @@ function new_nav_sorties(): array {
 // ⚠ FIXME ⚠ this function is really fragile due to the way we manage
 // sortie this needs a complete rewrite.
 // Rewrited to fix: https://github.com/mart1ver/oressource/issues/370
-function new_nav(string $text, int $numero, int $active): array {
+function new_nav(string $text, int $numero, int $active): array
+{
   $links = new_nav_sorties();
   // add numero in url fragment
   $links = array_map(function (array $e) use ($numero) {
@@ -62,27 +64,24 @@ function new_nav(string $text, int $numero, int $active): array {
   return $nav;
 }
 
-function checkBox(array $props, bool $state) {
+function checkBox(array $props, bool $state)
+{
   ob_start();
-  ?>
+?>
   <div class="checkbox">
     <label>
-      <input
-        name="<?= $props['name'] ?>"
-        id="<?= $props['name'] ?>"
-        <?= $state ? 'checked' : '' ?>
-        value="<?= json_encode($state) ?>"
-        type="checkbox">
-        <?= $props['text'] ?>
+      <input name="<?= $props['name'] ?>" id="<?= $props['name'] ?>" <?= $state ? 'checked' : '' ?> value="<?= json_encode($state) ?>" type="checkbox">
+      <?= $props['text'] ?>
     </label>
   </div>
-  <?php
+<?php
   return ob_get_clean();
 }
 
-function configCheckboxArea(array $props) {
+function configCheckboxArea(array $props)
+{
   ob_start();
-  ?>
+?>
   <div class="panel panel-info">
     <div class="panel-heading">
       <h3 class="panel-title"><?= $props['text'] ?></h3>
@@ -93,23 +92,25 @@ function configCheckboxArea(array $props) {
       <?php } ?>
     </div>
   </div>
-  <?php
+<?php
   return ob_get_clean();
 }
 
-function linkNav(array $props) {
+function linkNav(array $props)
+{
   ob_start();
-  ?>
+?>
   <li class="<?= ($props['state'] ?? false) ? 'active' : '' ?>">
     <a href="<?= $props['href'] ?>"><?= $props['text'] ?></a>
   </li>
-  <?php
+<?php
   return ob_get_clean();
 }
 
-function configNav(array $props) {
+function configNav(array $props)
+{
   ob_start();
-  ?>
+?>
   <nav class="navbar">
     <div class="header-header">
       <h1><?= $props['text'] ?></h1>
@@ -120,18 +121,19 @@ function configNav(array $props) {
       <?php } ?>
     </ul>
   </nav>
-  <?php
+<?php
   return ob_get_clean();
 }
 
-function configInfo(array $props) {
+function configInfo(array $props)
+{
   ob_start();
-  ?>
+?>
   <div class="panel panel-info">
     <div class="panel-heading">
       <h3 class="panel-title">Informations</h3>
     </div>
-    <div class = "panel-body">
+    <div class="panel-body">
       <?= textInput(['name' => 'nom', 'text' => "Nom:"], $props['nom']) ?>
       <?= textInput(['name' => 'prenom', 'text' => "Prénom:"], $props['prenom']) ?>
       <?= mailInput(['name' => 'mail', 'text' => "Courriel:"], $props['mail']) ?>
@@ -149,18 +151,19 @@ function configInfo(array $props) {
       <?php } ?>
     </div>
   </div>
-  <?php
+<?php
   return ob_get_clean();
 }
 
-function buttonCollectesSorties() {
+function buttonCollectesSorties()
+{
   ob_start();
-  ?>
+?>
   <div class="btn-group" role="group">
-    <button id="encaissement" class="btn btn-success btn-lg">C'est pesé!</button>
+    <button id="encaissement" class="btn btn-success btn-lg">Enregistrer</button>
     <button id="impression" class="btn btn-primary btn-lg" value="Print"><span class="glyphicon glyphicon-print"></span></button>
   </div>
-  <?php
+<?php
   return ob_get_clean();
 }
 
@@ -168,11 +171,12 @@ function buttonCollectesSorties() {
  * Il ne faut pas changer les id, ni les noms des inputs de ce composant sans modifier
  * le javascript associée.
  */
-function cartList(array $props) {
+function cartList(array $props)
+{
   ob_start();
-  ?>
+?>
   <div class="col-md-4">
-    <div id="ticket" class="panel panel-info" >
+    <div id="ticket" class="panel panel-info">
       <div class="panel-heading">
         <h3 class="panel-title">
           <label id="massetot"><?= $props['text'] ?></label>
@@ -183,8 +187,7 @@ function cartList(array $props) {
           <?php if (is_allowed_saisie_date() && is_allowed_edit_date()) { ?>
             <div>
               <label for="antidate">Date:</label>
-              <input type="date" id="antidate" name="date"
-                     value="<?= $props['date'] ?>">
+              <input type="date" id="antidate" name="date" value="<?= $props['date'] ?>">
             </div>
           <?php } ?>
           <ul class="list-group" id="transaction">
@@ -193,30 +196,31 @@ function cartList(array $props) {
         </form>
       </div>
       <div class="panel-footer">
-        <input type="text" form="formulaire" class="form-control"
-               name="commentaire" id="commentaire" placeholder="Commentaire">
+        <input type="text" form="formulaire" class="form-control" name="commentaire" id="commentaire" placeholder="Commentaire">
       </div>
     </div>
   </div>
-  <?php
+<?php
   return ob_get_clean();
 }
 
-function bilanTableHeader3(array $props) {
+function bilanTableHeader3(array $props)
+{
   ob_start();
-  ?>
+?>
   <tr>
     <th style="width:300px"><?= $props['td0'] ?></th>
     <th><?= $props['td1'] ?></th>
     <th><?= $props['td2'] ?></th>
   </tr>
-  <?php
+<?php
   return ob_get_clean();
 }
 
-function bilanTableBody3(array $props) {
+function bilanTableBody3(array $props)
+{
   ob_start();
-  ?>
+?>
   <tbody>
     <?php foreach ($props['data'] as $data) { ?>
       <tr>
@@ -226,30 +230,30 @@ function bilanTableBody3(array $props) {
       </tr>
     <?php } ?>
   </tbody>
-  <?php
+<?php
   return ob_get_clean();
 }
 
-function bilanTable3Hover(array $props) {
-  ?>
+function bilanTable3Hover(array $props)
+{
+?>
   <table class="table table-condensed table-striped table table-bordered table-hover" style="border-collapse:collapse;">
     <thead>
-    <th style="width:300px"><?= $props['text'] ?></th>
-    <thead>
-      <?= bilanTableHeader3($props) ?>
-    </thead>
-    <?= bilanTableBody3($props) ?>
+      <th style="width:300px"><?= $props['text'] ?></th>
+      <thead>
+        <?= bilanTableHeader3($props) ?>
+      </thead>
+      <?= bilanTableBody3($props) ?>
   </table>
-  <?php
+<?php
 }
 
-function bilanTable3(array $props) {
+function bilanTable3(array $props)
+{
   ob_start();
-  ?>
+?>
   <div class="list-group">
-    <a class="list-group-item" data-toggle="collapse"
-       href="#collapse<?= $props['id'] ?>" aria-expanded="false"
-       aria-controls="collapse<?= $props['id'] ?>"><?= $props['text'] ?></a>
+    <a class="list-group-item" data-toggle="collapse" href="#collapse<?= $props['id'] ?>" aria-expanded="false" aria-controls="collapse<?= $props['id'] ?>"><?= $props['text'] ?></a>
   </div>
   <div class="collapse" id="collapse<?= $props['id'] ?>">
     <table class="table table-condensed s
@@ -261,7 +265,7 @@ function bilanTable3(array $props) {
       <?= bilanTableBody3($props) ?>
     </table>
   </div>
-  <?php
+<?php
   return ob_get_clean();
 }
 
@@ -269,9 +273,10 @@ function bilanTable3(array $props) {
  * Attention le champ `key` de `$props` sera utilisé par le JavaScript pour
  * remplir la liste.
  */
-function listSaisie(array $props) {
+function listSaisie(array $props)
+{
   ob_start();
-  ?>
+?>
   <div class="panel panel-info">
     <div class="panel-heading">
       <h3 class="panel-title">
@@ -279,15 +284,16 @@ function listSaisie(array $props) {
       </h3>
     </div>
     <div class="panel-body">
-      <div id="<?= $props['key'] ?>" class="btn-group" >
+      <div id="<?= $props['key'] ?>" class="btn-group">
       </div>
     </div>
   </div>
-  <?php
+<?php
   return ob_get_clean();
 }
 
-function config_types3(array $props): string {
+function config_types3(array $props): string
+{
   return config_types3_param(array_merge($props, [
     'nom' => $_GET['nom'] ?? '',
     'commentaire' => $_GET['description'] ?? '',
@@ -295,20 +301,22 @@ function config_types3(array $props): string {
   ]));
 }
 
-function config_types3_header(array $props): string {
+function config_types3_header(array $props): string
+{
   ob_start();
-  ?>
+?>
   <h1><?= $props['h1'] ?></h1>
   <div class="panel-heading"><?= $props['heading'] ?></div>
   <p><?= $props['text'] ?></p>
 
-  <?php
+<?php
   return ob_get_clean();
 }
 
-function config_types3_form(array $props): string {
+function config_types3_form(array $props): string
+{
   ob_start();
-  ?>
+?>
   <div class="row">
     <form action="../moteur/<?= $props['url'] ?>_post.php" method="post">
       <div class="col-md-3"><?= textInput(['name' => 'nom', 'text' => "Nom:"], $props['nom']) ?></div>
@@ -317,15 +325,16 @@ function config_types3_form(array $props): string {
       <div class="col-md-1"><br><button class="btn btn-default">Créer</button></div>
     </form>
   </div>
-  <?php
+<?php
   return ob_get_clean();
 }
 
-function config_types3_page_modif(array $props): string {
+function config_types3_page_modif(array $props): string
+{
   global $_SERVER;
   ob_start();
-  ?>
- <div class="container">
+?>
+  <div class="container">
     <h1><?= $props['h1'] ?></h1>
     <div class="panel-heading">Modifier les données concernant le <?= $props['type'] ?> n°<?= $props['id'] ?>, <?= $props['nom'] ?>.</div>
     <div class="panel-body">
@@ -338,13 +347,14 @@ function config_types3_page_modif(array $props): string {
       </div>
     </div>
   </div><!-- /.container -->
-  <?php
+<?php
   return ob_get_clean();
 }
 
-function config_types3_form_modif(array $props): string {
+function config_types3_form_modif(array $props): string
+{
   ob_start();
-  ?>
+?>
   <form action="../moteur/modification_<?= $props['endpoint'] ?>_post.php" method="post">
     <input type="hidden" name="id" value="<?= $props['id'] ?>">
     <div class="col-md-3"><?= textInput(['name' => 'nom', 'text' => "Nom:"], $props['nom']) ?></div>
@@ -352,14 +362,15 @@ function config_types3_form_modif(array $props): string {
     <div class="col-md-1"><label for="couleur">Couleur:</label><input id="couleur" name="couleur" type="color" value="<?= $props['couleur'] ?>" class="form-control" required></div>
     <div class="col-md-1"><br><button class="btn btn-default">Modifier</button></div>
   </form>
-  <?php
+<?php
   return ob_get_clean();
 }
 
 
-function config_types4_form(array $props): string {
+function config_types4_form(array $props): string
+{
   ob_start();
-  ?>
+?>
   <div class="row">
     <form action="../moteur/<?= $props['url'] ?>_post.php" method="post">
       <input type="hidden" name="id" value="<?= $props['id'] ?? '' ?>">
@@ -370,16 +381,17 @@ function config_types4_form(array $props): string {
       <div class="col-md-1"><br><button class="btn btn-default"><?= $props['textBtn'] ?></button></div>
     </form>
   </div>
-  <?php
+<?php
   return ob_get_clean();
 }
 
 /*
  * A utiliser dans les configurations qui neccessitent les champs nom, description, couleur.
  */
-function config_types3_param(array $props): string {
+function config_types3_param(array $props): string
+{
   ob_start();
-  ?>
+?>
   <?= config_types3_header($props) ?>
   <div class="container">
     <div class="panel-body">
@@ -387,26 +399,28 @@ function config_types3_param(array $props): string {
     </div>
     <?= configModif($props) ?>
   </div>
-  <?php
+<?php
   return ob_get_clean();
 }
 
-function configBtnVisible(array $props): string {
+function configBtnVisible(array $props): string
+{
   ob_start();
-  ?>
+?>
   <form action="../moteur/visible.php" method="post">
-    <input type="hidden" name="id" value="<?= $props['id']; ?>"/>
-    <input type="hidden" name="table" value="<?= $props['url'] ?>"/>
-    <input type="hidden" name="visible" value="<?= json_encode(!((bool)$props['visible'])) ?>"/>
+    <input type="hidden" name="id" value="<?= $props['id']; ?>" />
+    <input type="hidden" name="table" value="<?= $props['url'] ?>" />
+    <input type="hidden" name="visible" value="<?= json_encode(!((bool)$props['visible'])) ?>" />
     <button class="btn btn-info btn-sm <?= $props['visible'] ? 'btn-info' : 'btn-danger' ?>"><?= bool_to_oui_non($props['visible']) ?></button>
   </form>
-  <?php
+<?php
   return ob_get_clean();
 }
 
-function configModif(array $props): string {
+function configModif(array $props): string
+{
   ob_start();
-  ?>
+?>
   <table class="table">
     <thead>
       <tr>
@@ -446,7 +460,8 @@ function configModif(array $props): string {
 }
 
 // Hack resolve problem in production with sorties_partenaires
-function page_config3(array $props, callable $droits) {
+function page_config3(array $props, callable $droits)
+{
   require_once 'session.php';
   require_once 'requetes.php';
 
@@ -457,11 +472,11 @@ function page_config3(array $props, callable $droits) {
     ob_start();
     require_once 'tete.php';
     $props['data'] = $props['functData']($bdd);
-    ?>
+  ?>
     <div class="container">
       <?= config_types3($props) ?>
     </div><!-- /.container -->
-    <?php
+  <?php
     require_once 'pied.php';
     return ob_get_clean();
   } else {
@@ -469,30 +484,35 @@ function page_config3(array $props, callable $droits) {
   }
 }
 
-function datePicker($props=[]): string {
+function datePicker($props = []): string
+{
   ob_start();
   ?>
   <div class="<?= $props['css'] ?? '' ?> pull-right">
-      <label for="reportrange">Choisissez la période à inspecter:</label><br>
-      <div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc">
-        <i class="fa fa-calendar"></i>
-        <span></span> <b class="caret"></b>
-      </div>
+    <label for="reportrange">Choisissez la période à inspecter:</label><br>
+    <div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc">
+      <i class="fa fa-calendar"></i>
+      <span></span> <b class="caret"></b>
+    </div>
     <script>
       'use strict';
       const query = processGet();
       const base = new URL(location.href);
       const options = setDatepicker(query);
-      bindDatepicker(options, { base: base.pathname, query });
+      bindDatepicker(options, {
+        base: base.pathname,
+        query
+      });
     </script>
   </div>
-  <?php
+<?php
   return ob_get_clean();
 }
 
-function headerVerif(array $props): string {
+function headerVerif(array $props): string
+{
   ob_start();
-  ?>
+?>
   <h1><?= $props['h1'] ?></h1>
   <div class="panel-body">
     <p><?= ($props['start'] === $props['end'] ? "Le " : "Du {$props['start']} au ") . $props['end'] ?> :</p>
@@ -501,21 +521,22 @@ function headerVerif(array $props): string {
         <li class="<?= $props['numero'] === $d['id'] ? 'active' : '' ?>">
           <a href="<?= $props['endpoint'] ?>.php?numero=<?= $d['id'] ?>&date1=<?= $props['start'] ?>&date2=<?= $props['end'] ?>"><?= $d['nom']; ?></a>
         </li>
-        <?php
+      <?php
       }
       ?>
     </ul>
     <br>
     <?= datePicker(['css' => 'row']) ?>
   </div>
-  <?php
+<?php
   return ob_get_clean();
 }
 
-function tableVerif(array $props): string {
+function tableVerif(array $props): string
+{
   $users = $props['users'];
   ob_start();
-  ?>
+?>
   <table class="table">
     <thead>
       <tr>
@@ -548,47 +569,50 @@ function tableVerif(array $props): string {
       <?php } ?>
     </tbody>
   </table>
-  <?php
+<?php
   return ob_get_clean();
 }
 
-function selectConfig(array $props): string {
+function selectConfig(array $props): string
+{
   ob_start();
-  ?>
+?>
   <div class="col-md-3">
     <label for="<?= $props['key']; ?>"><?= $props['text']; ?></label>
-      <select name="<?= $props['key']; ?>" id="<?= $props['key']; ?>" class="form-control" required>
+    <select name="<?= $props['key']; ?>" id="<?= $props['key']; ?>" class="form-control" required>
       <?php foreach ($props['data'] as $d) { ?>
         <option value="<?= $d['id']; ?>" <?= $props['active'] === $d['id'] ? 'selected' : '' ?>><?= $d['nom']; ?></option>
       <?php } ?>
     </select>
   </div>
-  <?php
+<?php
   return ob_get_clean();
 }
 
-function formModif(array $props): string {
-ob_start();
-$classe = $props['classe'] ?? '';
+function formModif(array $props): string
+{
+  ob_start();
+  $classe = $props['classe'] ?? '';
 ?>
-<form action="modification_<?= $props['endpoint'] ?>.php" method="post">
-  <input type="hidden" name="id" value="<?= $props['id'] ?>">
-  <input type="hidden" name="id_type" value="<?= $props['id_type'] ?? 0 ?>">
-  <input type="hidden" name="classe" value="<?= $classe ?>">
-  <input type="hidden" name="commentaire" value="<?= $props['commentaire'] ?? '' ?>">
-  <input type="hidden" name="date1" value="<?= $props['start'] ?>">
-  <input type="hidden" name="date2" value="<?= $props['end'] ?>">
-  <input type="hidden" name="npoint" value="<?= $props['numero'] ?>">
-  <button class="btn btn-warning btn-sm">Modifier</button>
-</form>
+  <form action="modification_<?= $props['endpoint'] ?>.php" method="post">
+    <input type="hidden" name="id" value="<?= $props['id'] ?>">
+    <input type="hidden" name="id_type" value="<?= $props['id_type'] ?? 0 ?>">
+    <input type="hidden" name="classe" value="<?= $classe ?>">
+    <input type="hidden" name="commentaire" value="<?= $props['commentaire'] ?? '' ?>">
+    <input type="hidden" name="date1" value="<?= $props['start'] ?>">
+    <input type="hidden" name="date2" value="<?= $props['end'] ?>">
+    <input type="hidden" name="npoint" value="<?= $props['numero'] ?>">
+    <button class="btn btn-warning btn-sm">Modifier</button>
+  </form>
 <?php
-return ob_get_clean();
+  return ob_get_clean();
 }
 
-function listPesees(array $props): string {
+function listPesees(array $props): string
+{
   ob_start();
   $users = $props['users'];
-  ?>
+?>
   <table class="table">
     <thead>
       <tr>
@@ -617,36 +641,26 @@ function listPesees(array $props): string {
       <?php } ?>
     </tbody>
   </table>
-  <?php
+<?php
   return ob_get_clean();
 }
 
-function textInput(array $props, string $state): string {
+function textInput(array $props, string $state): string
+{
   ob_start();
-  ?>
+?>
   <label for="<?= $props['name'] ?>"><?= $props['text'] ?></label>
-  <input type="text"
-         name="<?= $props['name'] ?>"
-         id="<?= $props['name'] ?>"
-         value="<?= $state ?>"
-         class="form-control"
-         autocomplete="off"
-         required/>
-    <?php
-    return ob_get_clean();
-  }
+  <input type="text" name="<?= $props['name'] ?>" id="<?= $props['name'] ?>" value="<?= $state ?>" class="form-control" autocomplete="off" required />
+<?php
+  return ob_get_clean();
+}
 
-function mailInput(array $props, string $state): string {
+function mailInput(array $props, string $state): string
+{
   ob_start();
-  ?>
+?>
   <label for="<?= $props['name'] ?>">Courriel :</label>
-  <input type="email"
-         value="<?= $state ?>"
-         name="<?= $props['name'] ?>"
-         id="<?= $props['name'] ?>"
-         class="form-control"
-         autocomplete="off"
-         required/>
-  <?php
+  <input type="email" value="<?= $state ?>" name="<?= $props['name'] ?>" id="<?= $props['name'] ?>" class="form-control" autocomplete="off" required />
+<?php
   return ob_get_clean();
 }

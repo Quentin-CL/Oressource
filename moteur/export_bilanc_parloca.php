@@ -36,19 +36,19 @@ if (isset($_SESSION['id']) && $_SESSION['systeme'] === 'oressource' && (strpos($
   //Premiere ligne = nom des champs (
   // on affiche la periode visée
   if ($_GET['date1'] === $_GET['date2']) {
-    $xls_output = ' Le ' . $_GET['date1'] . "\t";
+    $csv_output = ' Le ' . $_GET['date1'] . "\t";
   } else {
-    $xls_output = ' Du ' . $_GET['date1'] . ' au ' . $_GET['date2'] . "\t";
+    $csv_output = ' Du ' . $_GET['date1'] . ' au ' . $_GET['date2'] . "\t";
   }
 
-  if ($_GET['numero'] === 0) {
-    $xls_output .= "\n\r";
-    $xls_output .= 'Pour tout les points de collecte' . "\t";
-    $xls_output .= "\n\r";
-    $xls_output .= "\n\r";
-    $xls_output .= "\n\r";
-    $xls_output .= 'localité:' . "\t" . 'masse collecté:' . "\t" . 'nombre de collectes:' . "\t";
-    $xls_output .= "\n\r";
+  if ($_GET['numero'] === "0") {
+    $csv_output .= "\n\r";
+    $csv_output .= 'Pour tout les points de collecte' . "\t";
+    $csv_output .= "\n\r";
+    $csv_output .= "\n\r";
+    $csv_output .= "\n\r";
+    $csv_output .= 'localité:' . "\t" . 'masse collecté:' . "\t" . 'nombre de collectes:' . "\t";
+    $csv_output .= "\n\r";
     require_once '../moteur/dbconfig.php';
     $reponse = $bdd->prepare('SELECT
       localites.nom,SUM(pesees_collectes.masse) somme,pesees_collectes.timestamp,localites.id id,COUNT(distinct collectes.id) ncol
@@ -59,7 +59,7 @@ if (isset($_SESSION['id']) && $_SESSION['systeme'] === 'oressource' && (strpos($
     $reponse->execute(['du' => $time_debut, 'au' => $time_fin]);
 
     while ($donnees = $reponse->fetch()) {
-      $xls_output .= $donnees['nom'] . "\t" . $donnees['somme'] . "\t" . $donnees['ncol'] . "\t" . "\n";
+      $csv_output .= $donnees['nom'] . "\t" . $donnees['somme'] . "\t" . $donnees['ncol'] . "\t" . "\n";
       require_once '../moteur/dbconfig.php';
 
       $reponse2 = $bdd->prepare('SELECT localites.couleur,type_dechets.nom, sum(pesees_collectes.masse) somme
@@ -72,26 +72,26 @@ if (isset($_SESSION['id']) && $_SESSION['systeme'] === 'oressource' && (strpos($
         ORDER BY somme DESC');
       $reponse2->execute(['du' => $time_debut, 'au' => $time_fin, 'id_loc' => $donnees['id']]);
 
-      $xls_output .= 'objets collectés pour cette localité:' . "\t" . 'masse collecté:' . "\t";
-      $xls_output .= "\n\r";
+      $csv_output .= 'objets collectés pour cette localité:' . "\t" . 'masse collecté:' . "\t";
+      $csv_output .= "\n\r";
 
       while ($donnees2 = $reponse2->fetch()) {
-        $xls_output .= $donnees2['nom'] . "\t" . $donnees2['somme'] . "\t" . "\n";
+        $csv_output .= $donnees2['nom'] . "\t" . $donnees2['somme'] . "\t" . "\n";
       }
 
       $reponse2->closeCursor();
 
-      $xls_output .= "\n\r";
+      $csv_output .= "\n\r";
     }
     $reponse->closeCursor();
   } else {
-    $xls_output .= "\n\r";
-    $xls_output .= ' pour le point numero:  ' . $_GET['numero'] . "\t";
-    $xls_output .= "\n\r";
-    $xls_output .= "\n\r";
-    $xls_output .= "\n\r";
-    $xls_output .= 'localité:' . "\t" . 'masse collecté:' . "\t" . 'nombre de collectes:' . "\t";
-    $xls_output .= "\n\r";
+    $csv_output .= "\n\r";
+    $csv_output .= ' pour le point numero:  ' . $_GET['numero'] . "\t";
+    $csv_output .= "\n\r";
+    $csv_output .= "\n\r";
+    $csv_output .= "\n\r";
+    $csv_output .= 'localité:' . "\t" . 'masse collecté:' . "\t" . 'nombre de collectes:' . "\t";
+    $csv_output .= "\n\r";
 
     // on determine les masses totales collèctés sur cete periode(pour un point donné)
     require_once '../moteur/dbconfig.php';
@@ -106,7 +106,7 @@ if (isset($_SESSION['id']) && $_SESSION['systeme'] === 'oressource' && (strpos($
     $reponse->execute(['du' => $time_debut, 'au' => $time_fin, 'numero' => $_GET['numero']]);
 
     while ($donnees = $reponse->fetch()) {
-      $xls_output .= $donnees['nom'] . "\t" . $donnees['somme'] . "\t" . $donnees['ncol'] . "\t" . "\n";
+      $csv_output .= $donnees['nom'] . "\t" . $donnees['somme'] . "\t" . $donnees['ncol'] . "\t" . "\n";
 
       require_once '../moteur/dbconfig.php';
 
@@ -119,24 +119,29 @@ if (isset($_SESSION['id']) && $_SESSION['systeme'] === 'oressource' && (strpos($
         GROUP BY nom
         ORDER BY somme DESC');
       $reponse2->execute(['du' => $time_debut, 'au' => $time_fin, 'numero' => $_GET['numero'], 'id_type_collecte' => $donnees['id']]);
-      $xls_output .= 'objets collectés pour cette localité:' . "\t" . 'masse collecté:' . "\t";
-      $xls_output .= "\n\r";
+      $csv_output .= 'objets collectés pour cette localité:' . "\t" . 'masse collecté:' . "\t";
+      $csv_output .= "\n\r";
 
       while ($donnees2 = $reponse2->fetch()) {
-        $xls_output .= $donnees2['nom'] . "\t" . $donnees2['somme'] . "\t" . "\n";
+        $csv_output .= $donnees2['nom'] . "\t" . $donnees2['somme'] . "\t" . "\n";
       }
       $reponse2->closeCursor();
 
-      $xls_output .= "\n\r";
+      $csv_output .= "\n\r";
     }
     $reponse->closeCursor();
   }
 
   //=====================================================================================================================================
-
-  header('Content-type: application/vnd.ms-excel');
-  header('Content-disposition: attachment; filename=collectes_par_localites_' . date('Ymd') . '.xls');
-  echo $xls_output;
+  $encoded_csv = mb_convert_encoding($csv_output, 'UTF-16LE', 'UTF-8');
+  header('Content-Description: File Transfer');
+  header('Content-Type: application/vnd.ms-excel');
+  header('Content-disposition: attachment; filename=collectes_par_localites_' . date('Ymd') . '.csv');
+  header('Content-Transfer-Encoding: binary');
+  header('Expires: 0');
+  header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+  header('Pragma: public');
+  echo chr(255) . chr(254) . $encoded_csv;
   exit;
 }
 header('Location:../moteur/destroy.php');

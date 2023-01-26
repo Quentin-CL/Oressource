@@ -41,9 +41,9 @@ if (is_valid_session() && is_allowed_sortie_id($numero)) {
   $conventions = filter_visibles(convention_sortie($bdd));
   $date = new Datetime('now');
   $nav = new_nav($point_sortie['nom'], $numero, 1);
-  ?>
+?>
 
-  <div class="container">
+  <div class="container" style="width: 80vw;">
     <?= configNav($nav) ?>
     <?= cartList(['text' => "Masse totale: 0 Kg.", 'date' => $date->format('Y-m-d')]) ?>
 
@@ -97,7 +97,7 @@ if (is_valid_session() && is_allowed_sortie_id($numero)) {
 
     document.addEventListener('DOMContentLoaded', () => {
       const numpad = new NumPad(document.getElementById('numpad'),
-              window.OressourceEnv.conteneurs);
+        window.OressourceEnv.conteneurs);
 
       const typesItems = window.OressourceEnv.types_dechet;
       const ticketItem = new Ticket();
@@ -112,14 +112,16 @@ if (is_valid_session() && is_allowed_sortie_id($numero)) {
       const encaisse = prepare_data({
         items: ticketItem,
         evacs: ticketEvac,
-      }, {classe: 'sortiesc'});
+      }, {
+        classe: 'sortiesc'
+      });
       initUI('../api/sorties.php', encaisse);
 
-      window.OressourceEnv.tickets = [ ticketItem, ticketEvac ];
+      window.OressourceEnv.tickets = [ticketItem, ticketEvac];
     }, false);
   </script>
 
-  <?php
+<?php
   require_once 'pied.php';
 } else {
   header('Location:../moteur/destroy.php');

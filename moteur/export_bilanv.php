@@ -37,30 +37,55 @@ if (isset($_SESSION['id']) && $_SESSION['systeme'] === 'oressource' && (strpos($
   // on affiche la periode visée
   if ($date1 === $date2) {
     $nomfic = "bilan_vente_$date1.csv";
-    $xls_output = "Le $date1";
+    $csv_output = "Le $date1";
   } else {
-    $nomfic = "bilan_vente_${date1}_au_$date2.csv";
-    $xls_output = "Du $date1 au $date2";
+    $nomfic = `bilan_vente_${$date1}_au_${$date2}.csv`;
+    $csv_output = "Du $date1 au $date2";
   }
 
-  //  if ($numero == 0) {
-  $xls_output .= "\nPour tous les points de vente\n\n";
-  //Ligne des noms des champs
-  $xls_output .= "Réf\tRéf moyen de paiement\tDate\tAdhérent ?\tCommentaire\tRéf point de vente\tPoint de vente\tRéf vendeur\tNbx d'obj\tTotal quantités\tTotal prix\tTotal remboursement\n";
-  //  }
-  $req = $bdd->prepare('SELECT ventes.id, id_moyen_paiement, ventes.timestamp, adherent, ventes.commentaire, id_point_vente, nom, ventes.id_createur, count(vendus.id), sum(quantite), sum(prix*quantite),sum(remboursement)
-    FROM ventes, vendus,points_vente WHERE DATE(ventes.timestamp) BETWEEN :du AND :au AND id_vente=ventes.id AND id_point_vente=points_vente.id GROUP BY ventes.id');
-  $req->execute([':du' => $time_debut, ':au' => $time_fin]);
-  while ($donnees = $req->fetch(PDO::FETCH_ASSOC)) {
-    $xls_output .= implode("\t", array_slice($donnees, 0, -2));
-    $xls_output .= str_replace('.', ',', $donnees['sum(prix*quantite)']) . "\t";
-    $xls_output .= str_replace('.', ',', $donnees['sum(remboursement)']) . "\n";
+  if ($numero == '0') {
+    $csv_output .= "\n\r";
+    $csv_output .= "\nPour tous les points de vente\n\n";
+    $csv_output .= "\n\r";
+    $csv_output .= "\n\r";
+    $csv_output .= "\n\r";
+    //Ligne des noms des champs
+    $csv_output .= "Réf\tMoyen de paiement\tDate\tPoint de vente\tNbx d'obj\tTotal quantités\tTotal masse\tTotal prix\tTotal remboursement\n";
+    //  }
+    $req = $bdd->prepare('SELECT ventes.id, moyens_paiement.nom AS moyen_paiement, ventes.timestamp, points_vente.nom, count(vendus.id), sum(vendus.quantite), sum(masse* pesees_vendus.quantite),sum(prix*vendus.quantite),sum(remboursement)
+    FROM ventes, vendus,points_vente, moyens_paiement, pesees_vendus WHERE DATE(ventes.timestamp) BETWEEN :du AND :au AND id_vente=ventes.id AND id_point_vente=points_vente.id AND ventes.id_moyen_paiement=moyens_paiement.id AND vendus.id = pesees_vendus.id GROUP BY ventes.id');
+    $req->execute([':du' => $time_debut, ':au' => $time_fin]);
+    while ($donnees = $req->fetch(PDO::FETCH_ASSOC)) {
+      $csv_output .= implode("\t", $donnees) . "\n";
+    }
+    $req->closeCursor();
+  } else {
+    $csv_output .= "\n\r";
+    $csv_output .= 'Pour le point numero:  ' . $numero . "\t";
+    $csv_output .= "\n\r";
+    $csv_output .= "\n\r";
+    $csv_output .= "\n\r";
+    //Ligne des noms des champs
+    $csv_output .= "Réf\tMoyen de paiement\tDate\tNbx d'obj\tTotal quantités\tTotal masse\tTotal prix\tTotal remboursement\n";
+    //  }
+    $req = $bdd->prepare('SELECT ventes.id, moyens_paiement.nom AS moyen_paiement, ventes.timestamp, count(vendus.id), sum(vendus.quantite), sum(masse* pesees_vendus.quantite),sum(prix*vendus.quantite),sum(remboursement)
+        FROM ventes, vendus, moyens_paiement, pesees_vendus WHERE DATE(ventes.timestamp) BETWEEN :du AND :au AND id_vente=ventes.id AND id_point_vente= :numero AND ventes.id_moyen_paiement=moyens_paiement.id AND vendus.id = pesees_vendus.id GROUP BY ventes.id');
+    $req->execute([':du' => $time_debut, ':au' => $time_fin, ':numero' => $numero]);
+    while ($donnees = $req->fetch(PDO::FETCH_ASSOC)) {
+      $csv_output .= implode("\t", $donnees) . "\n";
+    }
+    $req->closeCursor();
   }
-  $req->closeCursor();
-
-  header('Content-type: text/csv');
+  $encoded_csv = mb_convert_encoding($csv_output, 'UTF-16LE', 'UTF-8');
+  header('Content-Description: File Transfer');
+  header('Content-Type: application/vnd.ms-excel');
+  header('Content-type: application/vnd.ms-excel');
   header('Content-disposition: attachment; filename=' . $nomfic);
-  echo $xls_output;
+  header('Content-Transfer-Encoding: binary');
+  header('Expires: 0');
+  header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+  header('Pragma: public');
+  echo chr(255) . chr(254) . $encoded_csv;
 } else {
   header('Location:../moteur/destroy.php');
 }

@@ -103,13 +103,13 @@ if (is_valid_session() && is_allowed_vente_id($numero)) {
           <label id="labelquantite" for="quantite">Quantité:</label>
           <input type="number" class="form-control" placeholder="Quantité" id="quantite" min="0" onfocus="fokus(this)">
 
-          <label id="labelprix" for="prix">Prix du lot:</label>
-          <input type="text" class="form-control" placeholder="€" id="prix" onfocus="fokus(this)">
-
           <?php if (pesees_ventes()) { ?>
             <label id="labelmasse" for="masse">Masse du lot:</label>
             <input type="text" class="form-control" placeholder="Kgs." id="masse" onfocus="fokus(this)">
           <?php } ?>
+
+          <label id="labelprix" for="prix">Prix du lot:</label>
+          <input type="text" class="form-control" placeholder="€" id="prix" onfocus="fokus(this)">
 
           <br />
 

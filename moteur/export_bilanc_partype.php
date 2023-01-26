@@ -36,19 +36,19 @@ if (isset($_SESSION['id']) && $_SESSION['systeme'] === 'oressource' && (strpos($
   //Premiere ligne = nom des champs (
   // on affiche la periode visée
   if ($_GET['date1'] === $_GET['date2']) {
-    $xls_output = ' Le ' . $_GET['date1'] . "\t";
+    $csv_output = ' Le ' . $_GET['date1'] . "\t";
   } else {
-    $xls_output = ' Du ' . $_GET['date1'] . ' au ' . $_GET['date2'] . "\t";
+    $csv_output = ' Du ' . $_GET['date1'] . ' au ' . $_GET['date2'] . "\t";
   }
 
-  if ($_GET['numero'] === 0) {
-    $xls_output .= "\n\r";
-    $xls_output .= 'Pour tout les points de collecte' . "\t";
-    $xls_output .= "\n\r";
-    $xls_output .= "\n\r";
-    $xls_output .= "\n\r";
-    $xls_output .= 'type de collecte:' . "\t" . 'masse collecté:' . "\t" . 'nombre de collectes:' . "\t";
-    $xls_output .= "\n\r";
+  if ($_GET['numero'] === "0") {
+    $csv_output .= "\n\r";
+    $csv_output .= 'Pour tout les points de collecte' . "\t";
+    $csv_output .= "\n\r";
+    $csv_output .= "\n\r";
+    $csv_output .= "\n\r";
+    $csv_output .= 'type de collecte:' . "\t" . 'masse collecté:' . "\t" . 'nombre de collectes:' . "\t";
+    $csv_output .= "\n\r";
     $reponse = $bdd->prepare('SELECT
       type_collecte.nom,SUM(`pesees_collectes`.`masse`) somme,pesees_collectes.timestamp,type_collecte.id,COUNT(distinct collectes.id) ncol
       FROM
@@ -61,7 +61,7 @@ GROUP BY id_type_collecte');
     $reponse->execute(['du' => $time_debut, 'au' => $time_fin]);
 
     while ($donnees = $reponse->fetch()) {
-      $xls_output .= $donnees['nom'] . "\t" . $donnees['somme'] . "\t" . $donnees['ncol'] . "\t" . "\n";
+      $csv_output .= $donnees['nom'] . "\t" . $donnees['somme'] . "\t" . $donnees['ncol'] . "\t" . "\n";
       $reponse2 = $bdd->prepare('SELECT type_dechets.couleur,type_dechets.nom, sum(pesees_collectes.masse) somme
     FROM type_dechets,pesees_collectes ,type_collecte , collectes
 WHERE
@@ -73,25 +73,25 @@ GROUP BY nom
 ORDER BY somme DESC');
       $reponse2->execute(['du' => $time_debut, 'au' => $time_fin, 'id_type_collecte' => $donnees['id']]);
 
-      $xls_output .= 'objets collectés pour ce type de collecte:' . "\t" . 'masse collecté:' . "\t";
-      $xls_output .= "\n\r";
+      $csv_output .= 'objets collectés pour ce type de collecte:' . "\t" . 'masse collecté:' . "\t";
+      $csv_output .= "\n\r";
 
       while ($donnees2 = $reponse2->fetch()) {
-        $xls_output .= $donnees2['nom'] . "\t" . $donnees2['somme'] . "\t" . "\n";
+        $csv_output .= $donnees2['nom'] . "\t" . $donnees2['somme'] . "\t" . "\n";
       }
 
       $reponse2->closeCursor();
-      $xls_output .= "\n\r";
+      $csv_output .= "\n\r";
     }
     $reponse->closeCursor();
   } else {
-    $xls_output .= "\n\r";
-    $xls_output .= ' pour le point numero:  ' . $_GET['numero'] . "\t";
-    $xls_output .= "\n\r";
-    $xls_output .= "\n\r";
-    $xls_output .= "\n\r";
-    $xls_output .= 'type de collecte:' . "\t" . 'masse collecté:' . "\t" . 'nombre de collectes:' . "\t";
-    $xls_output .= "\n\r";
+    $csv_output .= "\n\r";
+    $csv_output .= ' pour le point numero:  ' . $_GET['numero'] . "\t";
+    $csv_output .= "\n\r";
+    $csv_output .= "\n\r";
+    $csv_output .= "\n\r";
+    $csv_output .= 'type de collecte:' . "\t" . 'masse collecté:' . "\t" . 'nombre de collectes:' . "\t";
+    $csv_output .= "\n\r";
     $reponse = $bdd->prepare('SELECT
       type_collecte.nom,SUM(`pesees_collectes`.`masse`) somme,pesees_collectes.timestamp,type_collecte.id,COUNT(distinct collectes.id) ncol
       FROM pesees_collectes,collectes,type_collecte
@@ -102,7 +102,7 @@ ORDER BY somme DESC');
     $reponse->execute(['du' => $time_debut, 'au' => $time_fin, 'numero' => $_GET['numero']]);
 
     while ($donnees = $reponse->fetch()) {
-      $xls_output .= $donnees['nom'] . "\t" . $donnees['somme'] . "\t" . $donnees['ncol'] . "\t" . "\n";
+      $csv_output .= $donnees['nom'] . "\t" . $donnees['somme'] . "\t" . $donnees['ncol'] . "\t" . "\n";
       $reponse2 = $bdd->prepare('SELECT type_dechets.couleur,type_dechets.nom, sum(pesees_collectes.masse) somme
         FROM type_dechets,pesees_collectes ,type_collecte , collectes
         WHERE
@@ -113,22 +113,29 @@ ORDER BY somme DESC');
         GROUP BY nom
         ORDER BY somme DESC');
       $reponse2->execute(['du' => $time_debut, 'au' => $time_fin, 'numero' => $_GET['numero'], 'id_type_collecte' => $donnees['id']]);
-      $xls_output .= 'objets collectés pour ce type de collecte:' . "\t" . 'masse collecté:' . "\t";
-      $xls_output .= "\n\r";
+      $csv_output .= 'objets collectés pour ce type de collecte:' . "\t" . 'masse collecté:' . "\t";
+      $csv_output .= "\n\r";
 
       while ($donnees2 = $reponse2->fetch()) {
-        $xls_output .= $donnees2['nom'] . "\t" . $donnees2['somme'] . "\t" . "\n";
+        $csv_output .= $donnees2['nom'] . "\t" . $donnees2['somme'] . "\t" . "\n";
       }
       $reponse2->closeCursor();
 
-      $xls_output .= "\n\r";
+      $csv_output .= "\n\r";
     }
     $reponse->closeCursor();
   }
 
+  $encoded_csv = mb_convert_encoding($csv_output, 'UTF-16LE', 'UTF-8');
+  header('Content-Description: File Transfer');
+  header('Content-Type: application/vnd.ms-excel');
   header('Content-type: application/vnd.ms-excel');
-  header('Content-disposition: attachment; filename=collectes_par_types_objet_' . date('Ymd') . '.xls');
-  echo $xls_output;
+  header('Content-disposition: attachment; filename=collectes_par_types_objet_' . date('Ymd') . '.csv');
+  header('Content-Transfer-Encoding: binary');
+  header('Expires: 0');
+  header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+  header('Pragma: public');
+  echo chr(255) . chr(254) . $encoded_csv;
   exit;
 }
 header('Location:../moteur/destroy.php');

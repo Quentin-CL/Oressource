@@ -37,14 +37,14 @@ if (is_valid_session() && is_allowed_sortie_id($numero)) {
   $point_sortie = points_sorties_id($bdd, $numero);
   $date = new Datetime('now');
   $nav = new_nav($point_sortie['nom'], $numero, 4);
-  ?>
+?>
 
-  <div class="container">
+  <div class="container" style="width: 80vw;">
     <?= configNav($nav) ?>
     <?= cartList(['text' => "Masse totale: 0 Kg.", 'date' => $date->format('Y-m-d')]) ?>
 
     <!-- Pavee de saisie numerique vcir numpad.js -->
-    <div id="numpad" class="col-md-4"" style="width: 220px;"></div>
+    <div id="numpad" class="col-md-4"" style=" width: 220px;"></div>
 
     <div class="col-md-4">
       <?= listSaisie(['text' => 'Materiaux et déchets:', 'key' => 'list_evac']) ?>
@@ -73,7 +73,7 @@ if (is_valid_session() && is_allowed_sortie_id($numero)) {
     'use strict';
     document.addEventListener('DOMContentLoaded', () => {
       const numpad = new NumPad(document.getElementById('numpad'),
-              window.OressourceEnv.conteneurs);
+        window.OressourceEnv.conteneurs);
 
       const typesEvacs = window.OressourceEnv.types_evac;
       const ticketEvac = new Ticket();
@@ -82,15 +82,17 @@ if (is_valid_session() && is_allowed_sortie_id($numero)) {
 
       const encaisse = prepare_data({
         evacs: ticketEvac,
-      }, {classe: 'sortiesd'});
+      }, {
+        classe: 'sortiesd'
+      });
 
       initUI('../api/sorties.php', encaisse);
 
-      window.OressourceEnv.tickets = [ ticketEvac ];
+      window.OressourceEnv.tickets = [ticketEvac];
     }, false);
   </script>
 
-  <?php
+<?php
   require_once 'pied.php';
 } else {
   header('Location:../moteur/destroy.php');

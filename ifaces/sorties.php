@@ -44,13 +44,13 @@ if (is_valid_session() && is_allowed_sortie_id($numero)) {
 
   $date = new Datetime('now');
   $nav = new_nav($point_sortie['nom'], $numero, 3);
-  ?>
+?>
 
-  <div class="container">
+  <div class="container" style="width: 80vw;">
     <?= configNav($nav) ?>
     <?= cartList(['text' => "Masse totale: 0 Kg.", 'date' => $date->format('Y-m-d')]) ?>
 
-    <div class="col-md-4" >
+    <div class="col-md-4">
       <div class="panel panel-info">
         <div class="panel-heading">
           <h3 class="panel-title">
@@ -117,14 +117,16 @@ if (is_valid_session() && is_allowed_sortie_id($numero)) {
       const encaisse = prepare_data({
         items: ticketItem,
         evacs: ticketEvac,
-      }, {classe: 'sorties'});
+      }, {
+        classe: 'sorties'
+      });
 
       initUI('../api/sorties.php', encaisse);
       window.OressourceEnv.tickets = [ticketItem, ticketEvac];
     }, false);
   </script>
 
-  <?php
+<?php
   require_once 'pied.php';
 } else {
   header('Location:../moteur/destroy.php');

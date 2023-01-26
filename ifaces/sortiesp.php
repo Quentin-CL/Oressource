@@ -37,9 +37,9 @@ if (is_valid_session() && is_allowed_sortie_id($numero)) {
   $point_sortie = points_sorties_id($bdd, $numero);
   $date = new Datetime('now');
   $nav = new_nav($point_sortie['nom'], $numero, 0);
-  ?>
+?>
 
-  <div class="container">
+  <div class="container" style="width: 80vw;">
     <?= configNav($nav) ?>
     <?= cartList(['text' => "Masse totale: 0 Kg.", 'date' => $date->format('Y-m-d')]) ?>
 
@@ -70,7 +70,7 @@ if (is_valid_session() && is_allowed_sortie_id($numero)) {
     'use strict';
 
     document.addEventListener('DOMContentLoaded', () => {
-      const numpad = new NumPad(document.getElementById('numpad'), [ ]);
+      const numpad = new NumPad(document.getElementById('numpad'), []);
       const typesEvacs = window.OressourceEnv.types_evac;
       const ticketEvac = new Ticket();
 
@@ -79,7 +79,12 @@ if (is_valid_session() && is_allowed_sortie_id($numero)) {
 
       const div_list_evac = document.getElementById('list_poubelle');
       const fragment = document.createDocumentFragment();
-      typesEvacs.forEach(({ id, nom, couleur, masse_bac }) => {
+      typesEvacs.forEach(({
+        id,
+        nom,
+        couleur,
+        masse_bac
+      }) => {
         const button = document.createElement('button');
         button.setAttribute('id', id);
         button.setAttribute('class', 'btn btn-default');
@@ -92,14 +97,16 @@ if (is_valid_session() && is_allowed_sortie_id($numero)) {
 
       const encaisse = prepare_data({
         evacs: ticketEvac,
-      }, {classe: 'sortiesp'});
+      }, {
+        classe: 'sortiesp'
+      });
 
       initUI('../api/sorties.php', encaisse);
 
-      window.OressourceEnv.tickets = [ ticketEvac ];
+      window.OressourceEnv.tickets = [ticketEvac];
     }, false);
   </script>
-  <?php
+<?php
   require_once 'pied.php';
 } else {
   header('Location:../moteur/destroy.php');

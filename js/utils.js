@@ -208,9 +208,9 @@ const fillSelect = (select, array) => {
 function htmlSaisieItem({ id, nom, couleur }, action) {
   const button = document.createElement('button');
   button.setAttribute('id', id);
-  button.setAttribute('class', 'btn btn-default');
-  button.setAttribute('style', 'margin-left:8px; margin-top:16px;');
-  button.innerHTML = `<span class="badge" style="background-color:${couleur}">${nom}</span>`;
+  button.setAttribute('class', 'btn btn-default btn-lg');
+  button.setAttribute('style', `margin-left:8px; margin-top:16px;background-color:${couleur}; color: white; font-weight: bold; border-radius: 7px`);
+  button.innerHTML = `${nom}`;
   button.addEventListener('click', action, false);
   return button;
 }
@@ -456,6 +456,7 @@ function status(response) {
 function post_data(url, getData, onFinalise, onImpress = (_, a) => a) {
   return () => {
     const data = getData();
+
     if (Object.keys(data).length > 0) {
       fetch(url, {
         credentials: 'include',

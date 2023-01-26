@@ -42,9 +42,9 @@ if (is_valid_session() && is_allowed_sortie_id($numero)) {
 
   $date = new Datetime('now');
   $nav = new_nav($point_sortie['nom'], $numero, 2);
-  ?>
+?>
 
-  <div class="container">
+  <div class="container" style="width: 80vw;">
     <?= configNav($nav) ?>
     <?= cartList(['text' => "Masse totale: 0 Kg.", 'date' => $date->format('Y-m-d')]) ?>
 
@@ -69,7 +69,7 @@ if (is_valid_session() && is_allowed_sortie_id($numero)) {
       <div id="numpad" class="col-md-8 col-md-offset-2" style="width: 220px;"></div>
     </div>
 
-    <div class="col-md-4" >
+    <div class="col-md-4">
       <?= listSaisie(['text' => 'Materiaux et déchets:', 'key' => 'list_evac']) ?>
       <?= buttonCollectesSorties() ?>
     </div><!-- .col-md-4 -->
@@ -92,6 +92,7 @@ if (is_valid_session() && is_allowed_sortie_id($numero)) {
 
   <script type="text/javascript">
     'use strict';
+
     function make_choix_recycleur(ui, filieres) {
       return (event) => {
         if (event.target.value) {
@@ -106,7 +107,9 @@ if (is_valid_session() && is_allowed_sortie_id($numero)) {
 
           const id_recycleur = parseInt(select.value, 10);
           // On recupere le bon recycleur.
-          const [ recycleur ] = filieres.filter(({id}) => id === id_recycleur);
+          const [recycleur] = filieres.filter(({
+            id
+          }) => id === id_recycleur);
           // On selectione les boutons qui correspondent au possiblites du recyleur.
           const accepte = recycleur.types_dechets;
           const btnList = Array.from(ui.children).filter((e) => {
@@ -121,7 +124,7 @@ if (is_valid_session() && is_allowed_sortie_id($numero)) {
 
     document.addEventListener('DOMContentLoaded', () => {
       const numpad = new NumPad(document.getElementById('numpad'),
-              window.OressourceEnv.conteneurs);
+        window.OressourceEnv.conteneurs);
       const typesItems = window.OressourceEnv.types_evac;
       const ticketsItem = new Ticket();
       const pushItems = connection_UI_ticket(numpad, ticketsItem, typesItems);
@@ -133,19 +136,21 @@ if (is_valid_session() && is_allowed_sortie_id($numero)) {
         div_list_item.appendChild(button);
       });
 
-       const encaisse = prepare_data({
+      const encaisse = prepare_data({
         evacs: ticketsItem,
-      }, {classe: 'sortiesr'});
+      }, {
+        classe: 'sortiesr'
+      });
 
       initUI('../api/sorties.php', encaisse);
 
       const recycleur_choix = make_choix_recycleur(div_list_item, window.OressourceEnv.id_type_action);
       document.getElementById('id_type_action').addEventListener('change', recycleur_choix, false);
 
-      window.OressourceEnv.tickets = [ ticketsItem ];
+      window.OressourceEnv.tickets = [ticketsItem];
     }, false);
   </script>
-  <?php
+<?php
   require_once 'pied.php';
 } else {
   header('Location:../moteur/destroy.php');
