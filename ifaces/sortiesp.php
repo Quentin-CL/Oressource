@@ -41,8 +41,9 @@ if (is_valid_session() && is_allowed_sortie_id($numero)) {
 
   <div class="container" style="width: 80vw;">
     <?= configNav($nav) ?>
-    <?= cartList(['text' => "Masse totale: 0 Kg.", 'date' => $date->format('Y-m-d')]) ?>
-
+    <div class="col-md-4">
+      <?= cartList(['text' => "Masse totale: 0 Kg.", 'date' => $date->format('Y-m-d')]) ?>
+    </div>
     <div id="numpad" class="col-md-4" style="width: 220px;"></div>
 
     <div class="col-md-4">

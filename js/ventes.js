@@ -237,22 +237,25 @@ function update_state({ type, objet }) {
 }
 
 // Effectue l'affichage temporaire des 3 dernières ventes sur la page de vente 
-function update_historique(data, response) {
+function update_historique(data, _) {
+  const idMoyenPaiement = data.id_moyen;
+  const moyenPaiement = window.OressourceEnv.moyens_paiement.find(element => element.id === idMoyenPaiement);
   const historique = document.querySelector(".table tbody");
   if (historique.childElementCount === 3) {
     const lChild = historique.lastElementChild;
     lChild.remove()
   }
   const row = document.createElement("tr");
-  const idCell = document.createElement('td');
-  idCell.innerText = response.id;
   const dateCell = document.createElement('td');
   dateCell.innerText = moment().format('DD/MM/YYYY - HH:mm');
+  dateCell.setAttribute('colspan', '2')
   const prixCell = document.createElement('td');
   prixCell.innerText = state.ticket.sum_prix();
   const objetCell = document.createElement('td');
   objetCell.innerText = data.items.length;
-  row.append(idCell, dateCell, prixCell, objetCell);
+  const moyenCell = document.createElement('td');
+  moyenCell.innerHTML = `<span class='badge' style="background-color:${moyenPaiement.couleur}">${moyenPaiement.nom}</span>`;
+  row.append(dateCell, prixCell, objetCell, moyenCell);
   historique.prepend(row);
 }
 /**

@@ -225,25 +225,18 @@ if (is_valid_session() && is_allowed_vente_id($numero)) {
       <?php if ($_SESSION['viz_caisse']) { ?>
 
         <a href="viz_caisse.php?numero=<?= $numero; ?>" target="_blank">Visualiser les <?= $_SESSION['nb_viz_caisse']; ?> dernieres ventes</a>
-        <table class="table" style="text-align: center;">
+        <table class="table" style="text-align: center; width:100%">
           <thead>
             <tr>
-              <th>#</th>
-              <th>Date de création</th>
+              <th colspan="2">Date de création</th>
               <th>Crédit</th>
               <th>Nombre d'objets</th>
+              <th>Paiement</th>
             </tr>
           </thead>
 
           <tbody>
-            <!-- <?php foreach (viz_caisse($bdd, $numero, 3) as $vente) { ?>
-              <tr>
-                <td><?= $vente['id']; ?></td>
-                <td><?= $vente['date_creation']; ?></td>
-                <td><?= $vente['credit']; ?></td>
-                <td><?= $vente['quantite']; ?></td>
-              </tr>
-            <?php } ?> -->
+            <!-- Remplit par le script js -->
           </tbody>
         </table>
       <?php } ?>

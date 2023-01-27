@@ -175,29 +175,27 @@ function cartList(array $props)
 {
   ob_start();
 ?>
-  <div class="col-md-4">
-    <div id="ticket" class="panel panel-info">
-      <div class="panel-heading">
-        <h3 class="panel-title">
-          <label id="massetot"><?= $props['text'] ?></label>
-        </h3>
-      </div>
-      <div class="panel-body">
-        <form id="formulaire" method="POST">
-          <?php if (is_allowed_saisie_date() && is_allowed_edit_date()) { ?>
-            <div>
-              <label for="antidate">Date:</label>
-              <input type="date" id="antidate" name="date" value="<?= $props['date'] ?>">
-            </div>
-          <?php } ?>
-          <ul class="list-group" id="transaction">
-            <!-- Filled by Javascript -->
-          </ul>
-        </form>
-      </div>
-      <div class="panel-footer">
-        <input type="text" form="formulaire" class="form-control" name="commentaire" id="commentaire" placeholder="Commentaire">
-      </div>
+  <div id="ticket" class="panel panel-info">
+    <div class="panel-heading">
+      <h3 class="panel-title">
+        <label id="massetot"><?= $props['text'] ?></label>
+      </h3>
+    </div>
+    <div class="panel-body">
+      <form id="formulaire" method="POST">
+        <?php if (is_allowed_saisie_date() && is_allowed_edit_date()) { ?>
+          <div>
+            <label for="antidate">Date:</label>
+            <input type="date" id="antidate" name="date" value="<?= $props['date'] ?>">
+          </div>
+        <?php } ?>
+        <ul class="list-group" id="transaction">
+          <!-- Filled by Javascript -->
+        </ul>
+      </form>
+    </div>
+    <div class="panel-footer">
+      <input type="text" form="formulaire" class="form-control" name="commentaire" id="commentaire" placeholder="Commentaire">
     </div>
   </div>
 <?php

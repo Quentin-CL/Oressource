@@ -321,10 +321,11 @@ function recycleurReset() {
     .forEach((btn) => btn.setAttribute('style', 'display: none; visibility: hidden'));
 }
 
-/** Fonction de remise à zéro de l'interface graphique et des tickets en cours.
+/** Fonction de remise à zéro de l'interface graphique et des tickets en cours. Met à jour l'historique des collectes.
  * @param {string} classe soit une sortie soit une collecte.
  */
-function ticketsClear({ classe }) {
+function ticketsClear(data, _) {
+  const { classe } = data;
   // On supprime tout le ticket en cours.
   const range = document.createRange();
   range.selectNodeContents(document.getElementById('transaction'));
@@ -332,6 +333,7 @@ function ticketsClear({ classe }) {
   document.getElementById('commentaire').value = '';
   document.getElementById('massetot').textContent = 'Masse totale: 0 Kg.';
   if (classe === 'collecte') {
+    updateHistoriqueCollecte(data);
     document.getElementById('localite').selectedIndex = '0';
   }
   if (classe === 'sortiesr') {
@@ -344,6 +346,32 @@ function ticketsClear({ classe }) {
   // On reset TOUT les tickets. En general il y en aura qu'un...
   window.OressourceEnv.tickets.forEach((t) => t.reset());
 }
+
+// Effectue l'affichage temporaire des 3 dernières collectes sur la page de collecte
+function updateHistoriqueCollecte(data) {
+  const masseTotal = data.items.reduce((acc, t) => acc + t.masse, 0.0);
+  const idMoyenLocalite = data.localite;
+  console.log(window.OressourceEnv)
+  const localite = window.OressourceEnv.localites.find(element => element.id === idMoyenLocalite);
+  const historique = document.querySelector(".table tbody");
+  if (historique.childElementCount === 3) {
+    const lChild = historique.lastElementChild;
+    lChild.remove()
+  }
+  const row = document.createElement("tr");
+  const dateCell = document.createElement('td');
+  dateCell.innerText = moment().format('DD/MM/YYYY - HH:mm');
+  dateCell.setAttribute('colspan', '2')
+  const objetCell = document.createElement('td');
+  objetCell.innerText = data.items.length;
+  const localiteCell = document.createElement('td');
+  localiteCell.innerHTML = `<span class='badge' style="background-color:${localite.couleur}">${localite.nom}</span>`;
+  const masseCell = document.createElement('td');
+  masseCell.innerText = masseTotal;
+  row.append(dateCell, localiteCell, objetCell, masseCell);
+  historique.prepend(row);
+}
+
 
 /** Transforme une classe sous forme d'une chaine humainement representable.
  * @param {string} classe de sortie/entrée/vente representée par une string

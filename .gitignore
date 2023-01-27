@@ -3,6 +3,7 @@ data
 /nbproject/private/
 /nbproject
 _build
+launch.json
 
 moteur/dbconfig\.php\.example
 *~
