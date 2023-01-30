@@ -28,12 +28,13 @@ if (is_valid_session() && $_SESSION['viz_caisse'] && is_allowed_vente_id($numero
   require_once 'tete.php';
 
   $nb_viz_caisse = (int) ($_SESSION['nb_viz_caisse']);
-  ?>
+?>
 
   <div class="container">
-    <h1>Visualisation des <?= $nb_viz_caisse; ?> derniere ventes</h1>
+    <h1>Visualisation des <?= $nb_viz_caisse; ?> dernieres ventes</h1>
     <p align="right">
-      <input class="btn btn-default btn-lg" type='button'name='quitter' value='Quitter' OnClick="window.close();"/></p>
+      <input class="btn btn-default btn-lg" type='button' name='quitter' value='Quitter' OnClick="window.close();" />
+    </p>
     <div class="panel-body">
       <br>
     </div>
@@ -43,6 +44,7 @@ if (is_valid_session() && $_SESSION['viz_caisse'] && is_allowed_vente_id($numero
         <tr>
           <th>#</th>
           <th>Date de création</th>
+          <th>Masse</th>
           <th>Crédit</th>
           <th>Débit</th>
           <th>Nombre d'objets</th>
@@ -58,6 +60,7 @@ if (is_valid_session() && $_SESSION['viz_caisse'] && is_allowed_vente_id($numero
           <tr>
             <td><?= $vente['id']; ?></td>
             <td><?= $vente['date_creation']; ?></td>
+            <td><?= $vente['masse']; ?></td>
             <td><?= $vente['credit']; ?></td>
             <td><?= $vente['debit']; ?></td>
             <td><?= $vente['quantite']; ?></td>
@@ -69,9 +72,9 @@ if (is_valid_session() && $_SESSION['viz_caisse'] && is_allowed_vente_id($numero
                 <form action="viz_vente.php?nvente=<?= $vente['id']; ?>" method="post">
                   <input type="hidden" name="id" id="id" value="<?= $vente['id']; ?>">
                   <input type="hidden" name="npoint" id="npoint" value="<?= $numero; ?>">
-                  <button class="btn btn-primary btn-sm" ><span class="glyphicon glyphicon-search"></span></button>
+                  <button class="btn btn-primary btn-sm"><span class="glyphicon glyphicon-search"></span></button>
                 </form>
-                <?php
+              <?php
               } else { ?>
                 <form action="viz_remboursement.php?nvente=<?= $vente['id']; ?>" method="post">
                   <input type="hidden" name="id" id="id" value="<?= $vente['id']; ?>">
@@ -85,7 +88,7 @@ if (is_valid_session() && $_SESSION['viz_caisse'] && is_allowed_vente_id($numero
       </tbody>
     </table>
   </div><!-- /.container -->
-  <?php
+<?php
   require_once 'pied.php';
 } else {
   header('Location: ../moteur/destroy.php');

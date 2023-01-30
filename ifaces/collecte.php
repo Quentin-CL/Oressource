@@ -78,12 +78,15 @@ if (is_valid_session() && is_allowed_collecte_id($numero)) {
       <div class="col-md-4">
         <?= cartList(['text' => "Bon d'apport: 0 Kg.", 'date' => $date->format('Y-m-d')]) ?>
         <?= buttonCollectesSorties() ?>
+        <div style="margin-top:1rem">
+          <a href="viz_collectes.php?numero=<?= $numero; ?>" target="_blank">Visualiser les <?= $_SESSION['nb_viz_caisse']; ?> dernieres collectes</a>
+        </div>
         <table class="table" style="text-align: center; width:100%">
           <thead>
             <tr>
               <th colspan="2">Date</th>
               <th>Localité</th>
-              <th>Nombre d'objets</th>
+              <th>Nbre d'objets</th>
               <th>Masse</th>
             </tr>
           </thead>

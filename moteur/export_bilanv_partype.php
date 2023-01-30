@@ -67,7 +67,7 @@ if (isset($_SESSION['id']) && $_SESSION['systeme'] === 'oressource' && (strpos($
     ON vendus.id_type_dechet = type_dechets.id
     INNER JOIN ventes
     ON vendus.id_vente = ventes.id
-    INNER JOIN pesees_vendus
+    LEFT JOIN pesees_vendus
     ON pesees_vendus.id = vendus.id 
     WHERE DATE(vendus.timestamp)
     BETWEEN :du AND :au

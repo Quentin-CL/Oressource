@@ -22,41 +22,32 @@ session_start();
 require_once '../core/requetes.php';
 require_once '../core/session.php';
 
-if (is_valid_session() && is_allowed_vente() && $_SESSION['viz_caisse']) {
+if (is_valid_session() && is_allowed_collecte() && $_SESSION['viz_caisse']) {
   require_once '../moteur/dbconfig.php';
   $users = map_by(utilisateurs($bdd), 'id');
 
-  $req = $bdd->prepare('SELECT vendus.id, 
-  vendus.timestamp, 
-  vendus.lot, 
+  $req = $bdd->prepare('SELECT pc.id, 
+  pc.timestamp, 
   type_dechets.nom AS type, 
   type_dechets.couleur,
-  IF(ISNULL(vendus.id_objet), "Non defini", grille_objets.nom) AS objet, 
-  vendus.quantite, 
-  vendus.prix, 
-  vendus.id_createur, 
-  vendus.timestamp, 
-  utilisateurs.mail,
-  pesees_vendus.masse AS masse
-  FROM vendus 
+  pc.masse,
+  pc.id_createur, 
+  utilisateurs.mail 
+  FROM pesees_collectes AS pc
   INNER JOIN type_dechets 
-  ON type_dechets.id = vendus.id_type_dechet 
+  ON type_dechets.id = pc.id_type_dechet 
   INNER JOIN utilisateurs 
-  ON utilisateurs.id = vendus.id_createur 
-  LEFT JOIN grille_objets 
-  ON grille_objets.id = vendus.id_objet 
-  LEFT JOIN pesees_vendus
-  ON pesees_vendus.id = vendus.id
-  WHERE vendus.id_vente = :id_vente
-  GROUP BY vendus.id');
-  $req->execute(['id_vente' => $_GET['nvente']]);
+  ON utilisateurs.id = pc.id_createur 
+  WHERE pc.id_collecte = :id_collecte
+  GROUP BY pc.id');
+  $req->execute(['id_collecte' => $_GET['ncollecte']]);
   $donnees = $req->fetchAll(PDO::FETCH_ASSOC);
   $req->closeCursor();
 
   require_once 'tete.php';
 ?>
   <div class="container">
-    <h1>Visualiser la vente n° <?= $_GET['nvente']; ?></h1>
+    <h1>Visualiser la collecte n° <?= $_GET['ncollecte']; ?></h1>
     <p align="right">
       <input class="btn btn-default btn-lg" type='button' name='quitter' value='Quitter' OnClick="window.close();" />
     </p>
@@ -64,19 +55,15 @@ if (is_valid_session() && is_allowed_vente() && $_SESSION['viz_caisse']) {
       <br>
 
     </div>
-    <h1>Objets inclus dans cette vente</h1>
+    <h1>Objets inclus dans cette collecte</h1>
 
     <table class="table">
       <thead>
         <tr>
           <th>#</th>
           <th>Date de création</th>
-          <th>Type d'objet</th>
-          <th>Objet</th>
-          <th>Quantité</th>
-          <th>Masse unitaire</th>
-          <th>Prix</th>
-          <th>Lot</th>
+          <th>Type d'objet:</th>
+          <th>Masse</th>
           <th>Auteur de la ligne</th>
         </tr>
       </thead>
@@ -86,11 +73,7 @@ if (is_valid_session() && is_allowed_vente() && $_SESSION['viz_caisse']) {
             <td><?= $d['id']; ?></td>
             <td><?= $d['timestamp']; ?></td>
             <td><span class="badge" style="background-color: <?= $d['couleur']; ?>"><?= $d['type']; ?></span></td>
-            <td><?= $d['objet']; ?></td>
-            <td><?= $d['quantite']; ?></td>
             <td><?= $d['masse']; ?></td>
-            <td><?= $d['prix']; ?></td>
-            <td><?= $d['lot'] === 0 ? 'unité' : 'lot' ?></td>
             <td><?= $users[$d['id_createur']]['mail'] ?></td>
           </tr>
         <?php } ?>
