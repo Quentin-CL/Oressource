@@ -45,10 +45,10 @@ if (is_valid_session() && is_allowed_verifications()) {
     ventes.commentaire,
     moyens_paiement.nom moyen,
     moyens_paiement.couleur,
-    SUM(' . vendus_case_lot_unit(). ') vente,
+    SUM(' . vendus_case_lot_unit() . ') vente,
     SUM(vendus.quantite) quantite,
     SUM(vendus.remboursement * vendus.quantite) remb,
-    SUM(pesees_vendus.masse) masse
+    SUM(pesees_vendus.masse * pesees_vendus.quantite) masse
   FROM ventes
   INNER JOIN moyens_paiement
   ON ventes.id_moyen_paiement = moyens_paiement.id
@@ -73,10 +73,10 @@ if (is_valid_session() && is_allowed_verifications()) {
   $data = $req->fetchAll(PDO::FETCH_ASSOC);
 
   require_once 'tete.php';
-  ?>
+?>
 
   <div class="container">
-    <h1>verification des ventes</h1>
+    <h1>Verification des ventes</h1>
     <div class="panel-body">
       <ul class="nav nav-tabs">
         <?php foreach ($points_ventes as $point) { ?>
@@ -97,12 +97,12 @@ if (is_valid_session() && is_allowed_verifications()) {
       <thead>
         <tr>
           <th>#</th>
-          <th>Momment de la vente</th>
+          <th>Moment de la vente</th>
           <th>Crédit</th>
           <th>Débit</th>
           <th>Nombre d'objets</th>
           <th>Moyen de paiement</th>
-          <th>Masse pesée</th>
+          <th>Masse totale</th>
           <th>Commentaire</th>
           <th>Auteur</th>
           <th>Modifié par</th>
@@ -118,12 +118,12 @@ if (is_valid_session() && is_allowed_verifications()) {
           $quantite = $v['quantite'];
           $masse = $v['masse'];
           $rembo = ($remboursements > 0.00);
-          ?>
+        ?>
           <tr>
             <td>
               <span <?= $rembo
-                ? '(class="badge" style="background-color:red"'
-                : '' ?>><?= $v['id'] ?></span>
+                      ? '(class="badge" style="background-color:red"'
+                      : '' ?>><?= $v['id'] ?></span>
             </td>
             <td><?= $v['timestamp']; ?></td>
             <td><?= $ventes ?></td>
@@ -136,8 +136,7 @@ if (is_valid_session() && is_allowed_verifications()) {
             <td style="width:100px"><?= $v['commentaire']; ?></td>
             <td><?= $users[$v['id_createur']]['mail'] ?></td>
             <td>
-              <form action="modification_verification_<?= $rembo ? 'remboursement' : 'vente' ?>.php?nvente=<?= $v['id']; ?>"
-                    method="post">
+              <form action="modification_verification_<?= $rembo ? 'remboursement' : 'vente' ?>.php?nvente=<?= $v['id']; ?>" method="post">
                 <input type="hidden" name="moyen" value="<?= $v['moyen']; ?>">
                 <input type="hidden" name="id" value="<?= $v['id']; ?>">
                 <input type="hidden" name="date1" value="<?= $date1 ?>">
@@ -153,7 +152,7 @@ if (is_valid_session() && is_allowed_verifications()) {
       </tbody>
     </table>
   </div><!-- /.container -->
-  <?php
+<?php
   require_once 'pied.php';
 } else {
   header('Location: ../moteur/destroy.php');

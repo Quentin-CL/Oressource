@@ -27,7 +27,8 @@ require_once '../core/validation.php';
 header("content-type:application/json");
 
 // TODO Faire le neccessaire pour les ventes en lot.
-function vendus_insert(PDO $bdd, int $id_vente, array $vente): array {
+function vendus_insert(PDO $bdd, int $id_vente, array $vente): array
+{
   $sql = 'INSERT INTO vendus (
       timestamp,
       last_hero_timestamp,
@@ -80,7 +81,8 @@ function vendus_insert(PDO $bdd, int $id_vente, array $vente): array {
   return $id_vendus;
 }
 
-function pesee_vendu_insert(PDO $bdd, array $id_vendus, array $vente): int {
+function pesee_vendu_insert(PDO $bdd, array $id_vendus, array $vente): int
+{
   $sql = 'INSERT INTO pesees_vendus (
       timestamp,
       last_hero_timestamp,
@@ -121,7 +123,8 @@ function pesee_vendu_insert(PDO $bdd, array $id_vendus, array $vente): int {
   return $bdd->lastInsertId();
 }
 
-function vente_insert(PDO $bdd, array $vente): int {
+function vente_insert(PDO $bdd, array $vente): int
+{
   $sql = 'INSERT INTO ventes (
     timestamp,
     last_hero_timestamp,
@@ -161,7 +164,7 @@ if (is_valid_session()) {
 
   if (!is_allowed_vente_id($json['id_point'])) {
     http_response_code(403); // Forbiden.
-    echo(json_encode(['error' => 'Action interdite.'], JSON_FORCE_OBJECT));
+    echo (json_encode(['error' => 'Action interdite.'], JSON_FORCE_OBJECT));
     die();
   }
 
@@ -169,7 +172,7 @@ if (is_valid_session()) {
     $json['date'] = allowDate($json) ? parseDate($json['date']) : new DateTime('now');
   } catch (UnexpectedValueException $ex) {
     http_response_code(400); // Bad Request
-    echo(json_encode(['error' => $ex->getMessage()]));
+    echo (json_encode(['error' => $ex->getMessage()]));
     die();
   }
 
@@ -182,19 +185,19 @@ if (is_valid_session()) {
     }
     $bdd->commit();
     http_response_code(200); // Created
-    echo(json_encode(['id' => $vente_id], JSON_NUMERIC_CHECK));
+    echo (json_encode(['id' => $vente_id], JSON_NUMERIC_CHECK));
   } catch (UnexpectedValueException $e) {
     $bdd->rollback();
     http_response_code(400); // Bad Request
-    echo(json_encode(['error' => $e->getMessage()]));
+    echo (json_encode(['error' => $e->getMessage()]));
   } catch (PDOException $e) {
     $bdd->rollback();
     http_response_code(500); // Internal Server Error
-    echo(json_encode(['error' => 'Une erreur est survenue dans Oressource vente annulée.']));
+    echo (json_encode(['error' => 'Une erreur est survenue dans Oressource vente annulée.']));
     throw $e;
   }
 } else {
   http_response_code(401); // Unauthorized.
-  echo(json_encode(['error' => "Session Invalide ou expiree."], JSON_FORCE_OBJECT));
+  echo (json_encode(['error' => "Session Invalide ou expiree."], JSON_FORCE_OBJECT));
   die();
 }

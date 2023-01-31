@@ -15,14 +15,20 @@ changements apporté au logiciel.
 
 ### Version Quentin
 
-Version comprenant des ameliorations d'ergonomie du logiciel et d'ajout de fonctionnalités légére.
+Version comprenant des ameliorations d'ergonomie du logiciel et d'ajout de fonctionnalités légéres.
 
 - Deplacement des modules type d'objet/ticket de caisse
 - Changement du style des types d'objet
 - Vendu en lot par defaut
 - Suppression du 0 par defaut dans l'input prix unitaire et masse unitaire de l'onglet point de vente
 - Correction d'un bug qui rendait impossible l'ajout de sortie hors-boutique. Il y avait une violation de contrainte de clé étrangère lors de l'ajout ou de la mise à jour d'une ligne enfant dans la table "pesees_sorties". Il s'agit d'une erreur de la base de données SQL qui se produit lorsqu'une valeur de clé étrangère dans la table "pesees_sorties" ne correspond à aucune valeur de clé primaire dans la table "types_poubelles" par exemple. Correction en mettant une valeur par defaut "Null" à ces clés étrangeres.
-- Correction du nom manquant pour les sorties poubelles et déchetterie dans la visualisation des sorties hors-boutique.
+- Fix de la fonctionnalité de visualisation d'un vente en particulier accesible dans la page "Visualiser les 30 dernières ventes
+- Ajout de l'historique des 30 dernieres collectes sur le modèles des 30 dernieres ventes
+- Ajout de l'affichage momentané des 3 dernieres ventes
+- L'export des donnée des bilans des ventes et des collectes en .csv est rendu fonctionnel mais a encore besoin d'être amelioré
+- Ajout de la possibilité de modifier la date de création de chaque ventes
+
+- /!\ Encore bug Correction du nom manquant pour les sorties poubelles et déchetterie dans la visualisation des sorties hors-boutiques.
 
 ### Version v0.3.x
 

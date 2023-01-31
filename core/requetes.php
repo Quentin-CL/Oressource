@@ -562,7 +562,7 @@ function vendu_by_id_vente(PDO $bdd, int $id_vente): array
   left JOIN grille_objets
   ON grille_objets.id = vendus.id_objet
   LEFT JOIN pesees_vendus
-  ON pesees_vendus.id = vendus.id_vente
+  ON pesees_vendus.id = vendus.id
   WHERE vendus.id_vente = :id_vente');
   $req->bindParam(':id_vente', $id_vente, PDO::PARAM_INT);
   $req->execute();

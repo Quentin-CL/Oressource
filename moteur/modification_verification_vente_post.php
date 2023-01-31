@@ -21,10 +21,30 @@
 session_start();
 if (isset($_SESSION['id']) && $_SESSION['systeme'] === 'oressource' && (strpos($_SESSION['niveau'], 'h') !== false)) {
   require_once '../moteur/dbconfig.php';
-
-  $req = $bdd->prepare('UPDATE ventes SET commentaire =:commentaire , id_last_hero = :id_last_hero, last_hero_timestamp = NOW(), id_moyen_paiement =:id_moyen_paiement
-    WHERE id = :id');
-  $req->execute(['id' => $_POST['id'], 'id_last_hero' => $_SESSION['id'], 'commentaire' => $_POST['commentaire'], 'id_moyen_paiement' => $_POST['moyen']]);
+  $timestamp = str_replace('T', ' ', $_POST["datetime"]) . ':00';
+  $req = $bdd->prepare('UPDATE ventes 
+  INNER JOIN vendus
+  ON ventes.id = vendus.id_vente
+  LEFT JOIN pesees_vendus AS pv
+  ON vendus.id = pv.id
+  SET ventes.commentaire = :commentaire, 
+  ventes.id_last_hero = :id_last_hero, 
+  ventes.last_hero_timestamp = NOW(), 
+  ventes.timestamp = :timestamp,
+  vendus.id_last_hero = ventes.id_last_hero,
+  vendus.last_hero_timestamp = NOW(), 
+  vendus.timestamp = ventes.timestamp,
+  pv.id_last_hero = ventes.id_last_hero, 
+  pv.last_hero_timestamp = NOW(), 
+  pv.timestamp = ventes.timestamp,
+  ventes.id_moyen_paiement = :id_moyen_paiement
+  WHERE ventes.id = :id');
+  $req->bindParam(':timestamp', $timestamp, PDO::PARAM_STR);
+  $req->bindValue(':id', $_POST['id'], PDO::PARAM_INT);
+  $req->bindValue(':id_last_hero', $_SESSION['id'], PDO::PARAM_INT);
+  $req->bindParam(':commentaire', $_POST['commentaire'], PDO::PARAM_STR);
+  $req->bindValue(':id_moyen_paiement', $_POST['moyen'], PDO::PARAM_INT);
+  $req->execute();
   $req->closeCursor();
   header('Location:../ifaces/verif_vente.php?numero=' . $_POST['npoint'] . '&date1=' . $_POST['date1'] . '&date2=' . $_POST['date2']);
 } else {

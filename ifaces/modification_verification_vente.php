@@ -28,13 +28,15 @@ if (is_valid_session() && is_allowed_verifications()) {
 
   $vendus = vendu_by_id_vente($bdd, $_GET['nvente']);
 
-  $reponse = $bdd->prepare('SELECT commentaire FROM ventes WHERE id = :id_vente');
+  $reponse = $bdd->prepare('SELECT commentaire, timestamp FROM ventes WHERE id = :id_vente');
   $reponse->execute(['id_vente' => $_GET['nvente']]);
-  $commentaire = $reponse->fetch()['commentaire'];
+  $vente = $reponse->fetch();
+  $commentaire = $vente['commentaire'];
+  $timestamp = substr(str_replace(' ', 'T', $vente['timestamp']), 0, -3);
   $reponse->closeCursor();
 
   require_once 'tete.php';
-  ?>
+?>
   <div class="container">
     <h1>Modifier la vente n° <?= $_GET['nvente']; ?></h1>
     <div class="panel-body">
@@ -54,10 +56,14 @@ if (is_valid_session() && is_allowed_verifications()) {
             <label for="moyen">Moyen de paiement:</label>
             <select name="moyen" id="moyen" class="form-control " required>
               <?php foreach (filter_visibles(moyens_paiements($bdd)) as $m) { ?>
-                <option <?= $_POST['moyen'] === $m['nom'] ? 'selected' : '' ?>
-                  value="<?= $m['id']; ?>"  ><?= $m['nom']; ?></option>
-                <?php } ?>
+                <option <?= $_POST['moyen'] === $m['nom'] ? 'selected' : '' ?> value="<?= $m['id']; ?>"><?= $m['nom']; ?></option>
+              <?php } ?>
             </select>
+          </div>
+
+          <div class="col-md-3">
+            <label for="datetime">Date de création:</label>
+            <input type="datetime-local" name="datetime" id="datetime" value="<?= $timestamp ?>">
           </div>
 
           <div class="col-md-3">
@@ -76,16 +82,16 @@ if (is_valid_session() && is_allowed_verifications()) {
       <thead>
         <tr>
           <th>#</th>
-          <th>Momment de la vente</th>
-          <th>Type d'objet:</th>
-          <th>Objet:</th>
+          <th>Moment de la vente</th>
+          <th>Type d'objet</th>
+          <th>Objet</th>
           <th>Quantité</th>
           <th>Prix</th>
           <th>masse</th>
           <th>Auteur de la ligne</th>
           <th></th>
           <th>Modifié par</th>
-          <th>Le:</th>
+          <th>Le</th>
         </tr>
       </thead>
 
@@ -100,7 +106,8 @@ if (is_valid_session() && is_allowed_verifications()) {
             <td><?= $v['prix']; ?></td>
             <td><?= $v['masse'] ?? 0 ?></td>
             <td><?= $users[$v['id_createur']]['mail'] ?></td>
-            <td><form action="modification_verification_objet.php" method="post">
+            <td>
+              <form action="modification_verification_objet.php" method="post">
                 <input type="hidden" name="id" value="<?= $v['id']; ?>">
                 <input type="hidden" name="nvente" value="<?= $v['id_vente']; ?>">
                 <input type="hidden" name="quantite" value="<?= $v['quantite']; ?>">
@@ -120,7 +127,7 @@ if (is_valid_session() && is_allowed_verifications()) {
     </table>
   </div><!-- /.container -->
 
-  <?php
+<?php
   require_once 'pied.php';
 } else {
   header('Location: ../moteur/destroy.php');
