@@ -27,8 +27,9 @@ Version comprenant des ameliorations d'ergonomie du logiciel et d'ajout de fonct
 - Ajout de l'affichage momentané des 3 dernieres ventes
 - L'export des donnée des bilans des ventes et des collectes en .csv est rendu fonctionnel mais a encore besoin d'être amelioré
 - Ajout de la possibilité de modifier la date de création de chaque ventes
-
-- /!\ Encore bug Correction du nom manquant pour les sorties poubelles et déchetterie dans la visualisation des sorties hors-boutiques.
+- Fix d'un bug qui empeché la visualisation des sorties poubelles et déchetterie dans la page verifier les sorties hors-boutiques. Ajout d'un "type" qui est manquant pour ces catégories.
+- Suppression du mecanisme qui affectait une point moyen faux à toute les entités non pesées dans le bilan des ventes. On ignore maintenant les entités non pesées et on affecte le même poids à toute les entités d'une même ticket et d'un même type. Ajout des proportions de vente sur le bilan de masse et de chiffre d'affaire.
+- Suppresion de la possibilité de changer la quantité pour la vente par lot. Elle est fixé à un 1.
 
 ### Version v0.3.x
 

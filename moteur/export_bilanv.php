@@ -39,7 +39,7 @@ if (isset($_SESSION['id']) && $_SESSION['systeme'] === 'oressource' && (strpos($
     $nomfic = "bilan_vente_$date1.csv";
     $csv_output = "Le $date1";
   } else {
-    $nomfic = `bilan_vente_${$date1}_au_${$date2}.csv`;
+    $nomfic = 'bilan_vente_' . $date1 . '_au_' . $date2 . '.csv';
     $csv_output = "Du $date1 au $date2";
   }
 
@@ -86,8 +86,27 @@ if (isset($_SESSION['id']) && $_SESSION['systeme'] === 'oressource' && (strpos($
     //Ligne des noms des champs
     $csv_output .= "Réf\tMoyen de paiement\tDate\tNbx d'obj\tTotal quantités\tTotal masse\tTotal prix\tTotal remboursement\n";
     //  }
-    $req = $bdd->prepare('SELECT ventes.id, moyens_paiement.nom AS moyen_paiement, ventes.timestamp, count(vendus.id), sum(vendus.quantite), sum(masse* pesees_vendus.quantite),sum(prix*vendus.quantite),sum(remboursement)
-        FROM ventes, vendus, moyens_paiement, pesees_vendus WHERE DATE(ventes.timestamp) BETWEEN :du AND :au AND id_vente=ventes.id AND id_point_vente= :numero AND ventes.id_moyen_paiement=moyens_paiement.id AND vendus.id = pesees_vendus.id GROUP BY ventes.id');
+    $req = $bdd->prepare('SELECT 
+    ventes.id, 
+    moyens_paiement.nom AS moyen_paiement, 
+    ventes.timestamp, points_vente.nom, 
+    count(vendus.id), sum(vendus.quantite), 
+    sum(masse* pesees_vendus.quantite),
+    sum(prix*vendus.quantite),
+    sum(remboursement)
+    FROM ventes
+    INNER JOIN vendus
+    ON vendus.id_vente = ventes.id 
+    INNER JOIN points_vente
+    ON ventes.id_point_vente = points_vente.id 
+    INNER JOIN moyens_paiement
+    ON ventes.id_moyen_paiement = moyens_paiement.id 
+    LEFT JOIN pesees_vendus
+    ON vendus.id = pesees_vendus.id 
+    WHERE DATE(ventes.timestamp)
+    BETWEEN :du AND :au 
+    AND id_point_vente= :numero 
+    GROUP BY ventes.id');
     $req->execute([':du' => $time_debut, ':au' => $time_fin, ':numero' => $numero]);
     while ($donnees = $req->fetch(PDO::FETCH_ASSOC)) {
       $csv_output .= implode("\t", $donnees) . "\n";

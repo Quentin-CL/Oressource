@@ -100,8 +100,8 @@ if (is_valid_session() && is_allowed_vente_id($numero)) {
             <label id="labellot" for="typeVente">Vente au:</label>
             <input class="make-switch" id="typeVente" type="checkbox" name="my-checkbox" checked data-on-text="lot" data-off-text="l'unité" data-handle-width="28" data-size="small">
           <?php } ?>
-          <label id="labelquantite" for="quantite">Quantité:</label>
-          <input type="number" class="form-control" placeholder="Quantité" id="quantite" min="0" onfocus="fokus(this)">
+          <label id="labelquantite" for="quantite"></label>
+          <input type="hidden" class="form-control" placeholder="Quantité" id="quantite" min="0" onfocus="fokus(this)" value="1">
 
           <?php if (pesees_ventes()) { ?>
             <label id="labelmasse" for="masse">Masse du lot:</label>

@@ -506,10 +506,13 @@ function add() {
  * @param {string} masse_string pas lu si `window.OressourceEnv.pesee` est faux.
  * @param {string} bg_color
  */
-const lot_or_unite = (label, prix_string, masse_string, bg_color) => {
+const lot_or_unite = (label, prix_string, masse_string, bg_color, quantite_string, quantite_type) => {
   document.getElementById('labellot').textContent = label;
   document.getElementById('labelprix').textContent = prix_string;
   document.getElementById('panelcalc').style.backgroundColor = bg_color;
+  document.getElementById('labelquantite').textContent = quantite_string;
+  document.getElementById('quantite').setAttribute('type', quantite_type);
+
   if (window.OressourceEnv.pesees) {
     document.getElementById('labelmasse').textContent = masse_string;
   }
@@ -519,14 +522,16 @@ document.addEventListener('DOMContentLoaded', () => {
   $('#typeVente').bootstrapSwitch();
   $('#typeVente').on('switchChange.bootstrapSwitch', (event, checked) => {
     const args = (checked
-      ? ['Vente au: ', 'Prix du lot: ', 'Masse du lot: ', 'white']
-      : ['Vente à: ', 'Prix unitaire:', 'Masse unitaire: ', '#E8E6BC']
+      ? ['Vente au: ', 'Prix du lot: ', 'Masse du lot: ', 'white', '', 'hidden']
+      : ['Vente à: ', 'Prix unitaire:', 'Masse unitaire: ', '#E8E6BC', 'Quantité:', 'text']
     );
     lot_or_unite(...args);
     state.vente_unite = !checked;
   });
   if (!window.OressourceEnv.lots) {
-    document.getElementById('labelprix').textContent = 'Prix unitaire:';
+    document.getElementById('labelprix').textContent = 'Prix unitaire:'
+    document.getElementById('labelquantite').textContent = 'Quantité:';
+    document.getElementById('quantite').setAttribute('type', 'text');
     if (window.OressourceEnv.pesees) {
       document.getElementById('labelmasse').textContent = 'Masse unitaire: ';
     }

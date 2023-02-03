@@ -222,18 +222,22 @@ if (is_valid_session() && is_allowed_verifications()) {
       'data' => $sortiesRecyclage,
     ]));
     ?>
-
+    <?php foreach ($sortiesPoubelles as &$sortiePoubelles) {
+      $sortiePoubelles['nom'] = 'Poubelles';
+    }; ?>
     <?=
     VerifSortiesTable(array_merge($base, [
       'h3' => 'Sorties poubelles :',
-      'data' => [[...$sortiesPoubelles[0], 'nom' => 'Poubelles']],
+      'data' => $sortiesPoubelles,
     ]));
     ?>
-
+    <?php foreach ($sortiesDechetterie as &$sortieDechetterie) {
+      $sortieDechetterie['nom'] = 'Déchetterie';
+    }; ?>
     <?=
     VerifSortiesTable(array_merge($base, [
       'h3' => 'Sorties déchetterie :',
-      'data' => [[...$sortiesDechetterie[0], 'nom' => 'Déchetterie']]
+      'data' => $sortiesDechetterie
     ]));
     ?>
 

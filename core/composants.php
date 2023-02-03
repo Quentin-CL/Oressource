@@ -575,7 +575,7 @@ function selectConfig(array $props): string
 {
   ob_start();
 ?>
-  <div class="col-md-3">
+  <div class="col-md-2">
     <label for="<?= $props['key']; ?>"><?= $props['text']; ?></label>
     <select name="<?= $props['key']; ?>" id="<?= $props['key']; ?>" class="form-control" required>
       <?php foreach ($props['data'] as $d) { ?>

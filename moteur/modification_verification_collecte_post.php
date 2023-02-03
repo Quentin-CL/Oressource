@@ -21,9 +21,21 @@
 session_start();
 if (isset($_SESSION['id']) && $_SESSION['systeme'] === 'oressource' && (strpos($_SESSION['niveau'], 'h') !== false)) {
   require_once '../moteur/dbconfig.php';
-  $req = $bdd->prepare('UPDATE collectes SET id_type_collecte = :id_type_collecte, localisation = :localisation, id_last_hero = :id_last_hero, last_hero_timestamp = NOW(), commentaire =:commentaire
-    WHERE id = :id');
-  $req->execute(['id_type_collecte' => $_POST['id_type_collecte'], 'localisation' => $_POST['localisation'], 'id' => $_POST['id'], 'id_last_hero' => $_SESSION['id'], 'commentaire' => $_POST['commentaire']]);
+  $timestamp = str_replace('T', ' ', $_POST["datetime"]) . ':00';
+  $req = $bdd->prepare('UPDATE collectes 
+                        INNER JOIN pesees_collectes AS pc
+                        ON collectes.id = pc.id_collecte
+                        SET collectes.id_type_collecte = :id_type_collecte,
+                          collectes.localisation = :localisation,
+                          collectes.id_last_hero = :id_last_hero,
+                          collectes.last_hero_timestamp = NOW(),
+                          collectes.commentaire =:commentaire,
+                          collectes.timestamp = :timestamp,
+                          pc.timestamp = collectes.timestamp,
+                          pc.last_hero_timestamp = collectes.last_hero_timestamp,
+                          pc.id_last_hero = collectes.id_last_hero
+                        WHERE collectes.id = :id');
+  $req->execute(['id_type_collecte' => $_POST['id_type_collecte'], 'localisation' => $_POST['localisation'], 'id' => $_POST['id'], 'id_last_hero' => $_SESSION['id'], 'commentaire' => $_POST['commentaire'], 'timestamp' => $timestamp]);
   $req->closeCursor();
   header('Location:../ifaces/modification_verif_collecte.php?id=' . $_POST['id']);
 } else {

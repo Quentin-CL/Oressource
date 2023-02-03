@@ -89,8 +89,8 @@ if (is_valid_session() && is_allowed_sortie_id($numero)) {
         const button = document.createElement('button');
         button.setAttribute('id', id);
         button.setAttribute('class', 'btn btn-default');
-        button.setAttribute('style', 'padding: 8px 3px 8px 3px; margin: 4px 0px 4px 2px');
-        button.innerHTML = `<span class="badge" id="cool" style="background-color:${couleur}">${nom}: ${masse_bac}kg</span>`;
+        button.setAttribute('style', `padding: 8px 8px 8px 8px; margin: 4px 0px 4px 2px; background-color: ${couleur}; color: white; font-weight: bold; border-radius: 7px`);
+        button.innerHTML = `${nom}: ${masse_bac}kg`;
         button.addEventListener('click', pushEvac, false);
         fragment.appendChild(button);
       });

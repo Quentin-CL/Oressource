@@ -75,7 +75,7 @@ if (isset($_SESSION['id']) && $_SESSION['systeme'] === 'oressource' && (strpos($
     $reponse->execute(['du' => $time_debut, 'au' => $time_fin]);
 
     while ($donnees = $reponse->fetch()) {
-      $csv_output .= $donnees['nom'] . "\t" . $donnees['chiffre_degage'] . "\t" . $donnees['vendu_masse'] . "\t" . $donnees['vendu_quantite'] . "\t" . $donnees['remb_somme'] . "\t" . $donnees['remb_quantite'] . "\n";
+      $csv_output .= $donnees['nom'] . "\t" . $donnees['chiffre_degage'] . "\t" . $donnees['vendu_masse'] . "\t" . $donnees['vendu_quantite'] - $donnees['remb_quantite'] . "\t" . $donnees['remb_somme'] . "\t" . $donnees['remb_quantite'] . "\n";
     }
     $reponse->closeCursor();
   } else {
@@ -111,7 +111,7 @@ if (isset($_SESSION['id']) && $_SESSION['systeme'] === 'oressource' && (strpos($
     $reponse->execute(['du' => $time_debut, 'au' => $time_fin, 'numero' => $_GET['numero']]);
 
     while ($donnees = $reponse->fetch()) {
-      $csv_output .= $donnees['nom'] . "\t" . $donnees['chiffre_degage'] . "\t" . $donnees['vendu_masse'] . "\t" . $donnees['vendu_quantite'] . "\t" . $donnees['remb_somme'] . "\t" . $donnees['remb_quantite'] . "\n";
+      $csv_output .= $donnees['nom'] . "\t" . $donnees['chiffre_degage'] . "\t" . $donnees['vendu_masse'] . "\t" . $donnees['vendu_quantite'] - $donnees['remb_quantite'] . "\t" . $donnees['remb_somme'] . "\t" . $donnees['remb_quantite'] . "\n";
     }
     $reponse->closeCursor();
   }

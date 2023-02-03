@@ -791,8 +791,8 @@ function bilan_ventes_pesees(
       type_dechets.couleur as couleur,
       COUNT(DISTINCT(pesees_vendus.id)) as nb_pesees_ventes,
       COALESCE(SUM(pesees_vendus.quantite), 0) as quantite_pesee_vendu,
-      COALESCE(SUM(pesees_vendus.masse), 0) as vendu_masse,
-      COALESCE(AVG(pesees_vendus.masse), 0) as moy_masse_vente
+      COALESCE(SUM(pesees_vendus.masse * pesees_vendus.quantite), 0) as vendu_masse,
+      COALESCE(SUM(pesees_vendus.masse), 0) as pesee_masse
     FROM pesees_vendus
     INNER JOIN vendus
     ON vendus.id = pesees_vendus.id

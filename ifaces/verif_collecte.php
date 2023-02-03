@@ -71,13 +71,13 @@ if (is_valid_session() && is_allowed_verifications()) {
   ];
 
   require_once 'tete.php';
-  ?>
+?>
 
-  <div class="container" style="width:1300px">
+  <div class="container">
     <?= headerVerif($props); ?>
     <?= tableVerif($props); ?>
   </div><!-- /.container -->
-  <?php
+<?php
   require_once 'pied.php';
 } else {
   header('Location: ../moteur/destroy.php');

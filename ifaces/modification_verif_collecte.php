@@ -22,7 +22,8 @@ session_start();
 require_once '../core/session.php';
 require_once '../core/requetes.php';
 require_once '../core/composants.php';
-function collectes_id(PDO $bdd, int $id) {
+function collectes_id(PDO $bdd, int $id)
+{
   $sql = 'SELECT * FROM collectes WHERE id = :id';
   return fetch_id($bdd, $sql, $id);
 }
@@ -60,14 +61,15 @@ if (is_valid_session() && (strpos($_SESSION['niveau'], 'h') !== false)) {
       type_dechets.couleur');
   $req->execute(['id_collecte' => $id]);
   $pesees_collectes = $req->fetchAll(PDO::FETCH_ASSOC);
+  $timestamp = substr(str_replace(' ', 'T', $collecte['timestamp']), 0, -3);
   $req->closeCursor();
 
   $props = [
     'endpoint' => 'verification_pesee',
     'data' => $pesees_collectes,
     'users' => $users
-    ]
-  ?>
+  ]
+?>
   <div class="container">
     <h1>Modifier la collecte n° <?= $id ?></h1>
     <div class="panel-body">
@@ -81,7 +83,11 @@ if (is_valid_session() && (strpos($_SESSION['niveau'], 'h') !== false)) {
             <label for="commentaire">Commentaire</label>
             <textarea name="commentaire" id="commentaire" class="form-control"><?= $collecte['commentaire'] ?></textarea>
           </div>
-          <div class="col-md-3">
+          <div class="col-md-2">
+            <label for="datetime">Date de création:</label>
+            <input type="datetime-local" name="datetime" id="datetime" value="<?= $timestamp ?>">
+          </div>
+          <div class="col-md-2">
             <br>
             <button class="btn btn-warning">Modifier</button>
           </div>
@@ -93,7 +99,7 @@ if (is_valid_session() && (strpos($_SESSION['niveau'], 'h') !== false)) {
     <?= listPesees($props) ?>
   </div><!-- /.container -->
 
-  <?php
+<?php
   require_once 'pied.php';
 } else {
   header('Location: ../moteur/destroy.php');

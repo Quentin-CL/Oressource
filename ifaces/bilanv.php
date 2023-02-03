@@ -46,7 +46,6 @@ if (is_valid_session() && is_allowed_bilan()) {
   $remb_nb = nb_remboursements($bdd, $time_debut, $time_fin, $numero);
 
   $points_ventes = filter_visibles(points_ventes($bdd));
-
   $bilan_pesee_mix = array_reduce(array_keys($bilans_pesees_types), function ($acc, $e)
   use ($bilans_pesees_types, $bilans_types) {
     if (isset($bilans_types[$e])) {
@@ -56,7 +55,7 @@ if (is_valid_session() && is_allowed_bilan()) {
     return $acc;
   }, []);
 
-  $panier_moyen = $nb_ventes === 0 ? 'Non défini' : ($bilans['chiffre_degage'] / $nb_ventes) . "€";
+  $panier_moyen = $nb_ventes === 0 ? 'Non défini' : round($bilans['chiffre_degage'] / $nb_ventes, 2) . "€";
 
   $graphMv = data_graphs_from_bilan($bilans_pesees_types, 'vendu_masse');
   $graphPv = data_graphs_from_bilan($bilans_types, 'chiffre_degage');
@@ -145,7 +144,7 @@ if (is_valid_session() && is_allowed_bilan()) {
                   </tr>
                   <tr>
                     <td>Masse pesée en caisse :</td>
-                    <td><?= $bilans['vendu_masse']; ?> Kgs</td>
+                    <td><?= $bilans['vendu_masse']; ?> kg</td>
                   </tr>
                 </tbody>
 
@@ -204,6 +203,7 @@ if (is_valid_session() && is_allowed_bilan()) {
                     <th>Quantité vendue</th>
                     <th>Somme remboursée en €</th>
                     <th>Quantité remboursée</th>
+                    <th>Proportion de vente (% du chiffre dégagé)</th>
                   </tr>
                 </thead>
 
@@ -217,78 +217,61 @@ if (is_valid_session() && is_allowed_bilan()) {
                       <td><?= $bilan_type['vendu_quantite']; ?></td>
                       <td><?= $bilan_type['remb_somme']; ?></td>
                       <td><?= $bilan_type['remb_quantite']; ?></td>
+                      <td><?= round((($bilan_type['chiffre_degage'] - $bilan_type['remb_somme']) / ($bilans['chiffre_degage'] - $bilans['remb_somme'])) * 100, 2); ?></td>
                     </tr>
                   <?php } ?>
                 </tbody>
               </table>
 
               <h3>Récapitulatif des masses pesées à la caisse</h3>
+              <h5><em>Les objets non pesés sont ignorés dans le bilan des masses</em></h5>
 
               <table class="table table-hover">
                 <thead>
                   <tr>
-                    <th>type d'objet</th>
-                    <th>masse pésee en kg</th>
-                    <th>nombre de pesées</th>
-                    <th>nombre d'objets pesés</th>
-                    <th>nombre d'objets vendus</th>
-                    <th>masse sortie totale estimée en kg</th>
-                    <th>prix à la tonne estimé en €</th>
-                    <th>certitude de l'estimation</th>
+                    <th>Type d'objet</th>
+                    <th>Masse pesée en kg</th>
+                    <th>Nombre de pesées</th>
+                    <th>Nombre d'objets non pesés</th>
+                    <th>Nombre d'objets vendus</th>
+                    <th>Masse sortie totale en kg</th>
+                    <th>Prix à la tonne en €</th>
+                    <th>Proportion de vente (% de la masse)</th>
                   </tr>
                 </thead>
 
                 <tbody>
                   <?php
                   // TODO: Mettre des noms de variables explicites.
+                  $masse_totale_vendus = array_sum(array_column($bilan_pesee_mix, 'vendu_masse'));
                   foreach ($bilan_pesee_mix as $id => $bilan_mix) {
                     $chiffre_degage = $bilan_mix['chiffre_degage'];
                     $id_type_dechet = $id;
-                    $vendus_pesses = $bilan_mix['quantite_pesee_vendu'];
+                    $vendus_pesees = $bilan_mix['quantite_pesee_vendu'];
                     $Mtpe = (float) $bilan_mix['vendu_masse'];
                     $Ntpe = (int) $bilan_mix['nb_pesees_ventes'];
                     $Notpe = (int) $bilan_mix['quantite_pesee_vendu'];
                     $obj_vendu = (int) $bilan_mix['vendu_quantite'];
-                    $moy_masse_vente = (float) $bilan_mix['moy_masse_vente'];
-
-                    // TODO faire une fonction.
-                    if ($obj_vendu === $Notpe) {
-                      $mtee = $Mtpe;
-                      $certitude = 100;
-                      $masse_vente_moyenne_totale = $moy_masse_vente * $obj_vendu;
-                      $masse_pesees_vendu_esp =  $Mtpe;
-                      $prix_tonne_estime = (($masse_vente_moyenne_totale - $masse_pesees_vendu_esp) + $Mtpe);
-                    } else {
-                      $masse_vente_moyenne_totale = $moy_masse_vente * $obj_vendu;
-                      $masse_pesees_vendu_esp = $moy_masse_vente * $Mtpe;
-                      $prix_tonne_estime = (($masse_vente_moyenne_totale - $masse_pesees_vendu_esp) + $Mtpe);
-                      $certitude = round(($Notpe / $obj_vendu) * 100, 2);
-                    }
-
-                    //on traduit le pourcentage en valeur de vert 100% = tout vert
-                    $Gvalue = round($certitude * 2.55, 0);
-                    //on traduit le pourcentage en valeur de rouge 0% = tout rouge
-                    $Rvalue = round(255 - $Gvalue, 0);
+                    $masse_pesee = (float) $bilan_mix['pesee_masse'];
+                    $remb_quantite = (int) $bilan_mix['remb_quantite'];
                   ?>
                     <tr>
                       <th scope="row">
                         <a href="./jours.php?<?= $date_query; ?>&type=<?= $id; ?>"><?= $bilan_mix['nom']; ?></a>
                       </th>
-                      <td><?= round($Mtpe, 2); ?></td>
+                      <td><?= round($masse_pesee, 2); ?></td>
                       <td><?= round($Ntpe, 2); ?></td>
-                      <td><?= $Notpe; ?></td>
-                      <td><?= $obj_vendu; ?></td>
-                      <td><?= round($prix_tonne_estime, 2); ?></td>
-                      <td><?= round(($chiffre_degage / $prix_tonne_estime) * 1000, 2); ?></td>
-                      <td>
-                        <span class='badge' id='Bcertitude' style='background-color: RGB(<?= $Rvalue; ?>,<?= $Gvalue; ?>,0);'><?= $certitude; ?> %</span>
-                      </td>
+                      <td><?= $obj_vendu - $Notpe - $remb_quantite; ?></td>
+                      <td><?= $obj_vendu  - $remb_quantite; ?></td>
+                      <td><?= round($Mtpe, 2); ?></td>
+                      <td><?= round(($chiffre_degage / $Mtpe) * 1000, 2); ?></td>
+                      <td><?= round(($Mtpe / $masse_totale_vendus) * 100, 2); ?></td>
                     </tr>
                   <?php } ?>
                 </tbody>
               </table>
 
-              <h4>Masses pesées en caisse par type d'objet :</h4>
+              <h4>Masses vendus par type d'objet :</h4>
 
               <div id="graphMV" style="height: 180px;"></div>
             </div>
@@ -297,7 +280,6 @@ if (is_valid_session() && is_allowed_bilan()) {
       </div>
     </div>
   </div>
-
   <script type="text/javascript">
     'use strict';
 
