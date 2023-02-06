@@ -538,12 +538,115 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   const url = '../api/ventes.php';
+  const urlTransactions = '../api/transactions.php';
   const ventePrint = (
     (d, r) => impressionTicket(d, r, printTva)
   );
 
   const send = post_data(url, encaisse_vente, reset);
+  const sendTransaction = post_data(urlTransactions, encaisse_transaction, reset_transaction);
   const sendAndPrint = post_data(url, encaisse_vente, reset, ventePrint);
   document.getElementById('encaissement').addEventListener('click', send, false);
   document.getElementById('impression').addEventListener('click', sendAndPrint, false);
+  document.querySelector('.save-transaction').addEventListener('click', sendTransaction, false);
+  document.querySelector('.btn-autres-transactions').addEventListener('click', update_chiffre_du_jour, false);
+  document.querySelector("#type-transaction").addEventListener('change', calculer_erreur_de_caisse, false);
 }, false);
+
+
+
+/**
+ * Envoie coté serveur une "autre transaction" après quelques verifications locales.
+ *
+ * @returns {{} | Item}
+ */
+function encaisse_transaction() {
+  const type = document.querySelector("#type-transaction");
+  const somme = document.querySelector("#somme-transaction");
+  if (type.value !== '' && somme.value !== '') {
+    const data = {
+      id_user: window.OressourceEnv.id_user,
+      id_type: type.value,
+      id_point: window.OressourceEnv.point.id,
+      somme: (type.value === '1' ? somme.value - window.OressourceEnv.chiffre_du_jour : somme.value),
+      commentaire: document.getElementById('commentaire-transaction').value.trim()
+    };
+    if (date !== null) {
+      data.date = date.value;
+    }
+    return data;
+  } else {
+    return {};
+  }
+}
+
+function update_chiffre_du_jour() {
+  fetch('../moteur/chiffre_du_jour.php', {
+    method: 'POST',
+    credidentials: 'include',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json; charset=utf-8',
+    },
+    body: {},
+  }).then(status)
+    .then((response) => {
+      window.OressourceEnv.chiffre_du_jour = response.chiffre_du_jour;
+    }).catch((ex) => {
+      console.log('Error:', ex);
+    });
+}
+
+let isListening = false;
+
+function calculer_erreur_de_caisse() {
+  const value = document.querySelector("#type-transaction").value;
+  const label = document.querySelector("#label-transaction");
+  const somme = document.querySelector("#somme-transaction");
+
+  if (value === '1') {
+    label.innerText = "Chiffre de caisse :";
+    somme.setAttribute("placeholder", "Veuillez entrer le chiffre de caisse du jour")
+    somme.addEventListener('input', afficher_erreur_de_caisse);
+    isListening = true;
+  } else if (isListening) {
+    label.innerText = "Somme perçue :";
+    somme.removeEventListener('input', afficher_erreur_de_caisse);
+    somme.setAttribute("placeholder", "")
+    removeErrorCaisse();
+  }
+}
+
+function afficher_erreur_de_caisse() {
+  const somme = document.querySelector("#somme-transaction");
+  removeErrorCaisse();
+
+  const errCaisseContainer = document.createElement('div');
+  errCaisseContainer.classList.add('erreur-caisse');
+  const errCaisse = somme.value - window.OressourceEnv.chiffre_du_jour;
+  errCaisseContainer.innerHTML = `<p class='navbar-text' style='margin: 0; text-align: center; float: none'>L'erreur de caisse du jour s'élève à <strong>${errCaisse}</strong> €`;
+  document.querySelector('#myModal .modal-body').append(errCaisseContainer);
+}
+
+function removeErrorCaisse() {
+  const errCaisse = document.querySelector('.erreur-caisse');
+  if (errCaisse) {
+    errCaisse.remove();
+  }
+}
+
+function reset_transaction() {
+  const type = document.querySelector("#type-transaction");
+  const somme = document.querySelector("#somme-transaction");
+  if (isListening) {
+    somme.removeEventListener('input', afficher_erreur_de_caisse);
+    somme.setAttribute("placeholder", "")
+    removeErrorCaisse();
+    document.querySelector("#label-transaction").innerText = "Somme perçue :";
+  }
+
+  document.getElementById('commentaire-transaction').value = '';
+  type.value = '';
+  somme.value = '';
+  document.querySelector(".close-transaction").click();
+}

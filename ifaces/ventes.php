@@ -37,6 +37,7 @@ if (is_valid_session() && is_allowed_vente_id($numero)) {
   $dechets = filter_visibles(types_dechets($bdd));
   $objets = filter_visibles(objets($bdd));
   $moyens_paiement = filter_visibles(moyens_paiements($bdd));
+  $types_transactions = filter_visibles(types_transactions($bdd));
 ?>
 
   <div class="container" style="width: 90vw">
@@ -173,6 +174,10 @@ if (is_valid_session() && is_allowed_vente_id($numero)) {
           <input type="text" form="formulaire" class="form-control" name="commentaire" id="commentaire" placeholder="Commentaire">
           <br>
           <button type="button" class="btn btn-warning" data-toggle="collapse" data-target="#collapserendu" aria-expanded="false" aria-controls="collapserendu">Rendu Monnaie</button>
+          <!-- Button trigger modal -->
+          <button type="button" class="btn btn-primary btn-autres-transactions" data-toggle="modal" data-target="#myModal">
+            Autres transactions
+          </button>
           <div class="collapse" id="collapserendu">
             <ul class="list-group list-group-item-warning">
               <li class="list-group-item">
@@ -241,8 +246,6 @@ if (is_valid_session() && is_allowed_vente_id($numero)) {
         </table>
       <?php } ?>
     </div>
-
-
   </div>
   <script type="text/javascript">
     'use scrict';
@@ -259,7 +262,8 @@ if (is_valid_session() && is_allowed_vente_id($numero)) {
       taux_tva: <?= json_encode($_SESSION['taux_tva'], JSON_NUMERIC_CHECK); ?>,
       point: <?= json_encode(points_ventes_id($bdd, $numero), JSON_NUMERIC_CHECK); ?>,
       id_user: <?= json_encode($_SESSION['id'], JSON_NUMERIC_CHECK) ?>,
-      moyens_paiement: <?= json_encode($moyens_paiement, JSON_NUMERIC_CHECK) ?>
+      moyens_paiement: <?= json_encode($moyens_paiement, JSON_NUMERIC_CHECK) ?>,
+      chiffre_du_jour: 0
     };
   </script>
   <script src="../js/ventes.js"></script>
@@ -269,3 +273,48 @@ if (is_valid_session() && is_allowed_vente_id($numero)) {
   header('Location:../moteur/destroy.php');
 }
 ?>
+
+
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Autres transactions</h4>
+      </div>
+      <div class="modal-body">
+        <form class="form-horizontal" action="">
+          <div class="form-group">
+            <label class="control-label col-md-4" for="type-transaction">Type de transaction :</label>
+            <div class="col-md-7">
+              <select class="form-control" name="type-transaction" id="type-transaction">
+                <option value="">Veuillez sélectionner</option>
+                <?php foreach ($types_transactions as $type) { ?>
+                  <option value="<?= $type['id'] ?>"><?= $type['nom'] ?></option>
+                <?php } ?>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="control-label col-md-4" for="somme-transaction" id="label-transaction">Somme perçue :</label>
+            <div class="col-md-7">
+              <input type="number" name="somme" id="somme-transaction" class="form-control">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="control-label col-md-4" for="commentaire-transaction">Commentaire :</label>
+            <div class="col-md-7">
+              <textarea name="commentaire-transaction" id="commentaire-transaction" cols="30" rows="5" class="form-control"></textarea>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default close-transaction" data-dismiss="modal">Annuler</button>
+        <button type="button" class="btn btn-primary save-transaction">Sauvegarder</button>
+      </div>
+    </div>
+  </div>
+</div>

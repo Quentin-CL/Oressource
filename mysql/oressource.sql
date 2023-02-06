@@ -334,9 +334,9 @@ CREATE TABLE `pesees_sorties` (
   `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `masse` decimal(7,3) NOT NULL,
   `id_sortie` int(11) NOT NULL,
-  `id_type_dechet` int(11) DEFAULT '0',
-  `id_type_poubelle` int(11) DEFAULT '0',
-  `id_type_dechet_evac` int(11) DEFAULT '0',
+  `id_type_dechet` int(11) DEFAULT 'NULL',
+  `id_type_poubelle` int(11) DEFAULT 'NULL',
+  `id_type_dechet_evac` int(11) DEFAULT 'NULL',
   `id_createur` int(11) NOT NULL DEFAULT '0',
   `id_last_hero` int(11) NOT NULL DEFAULT '0',
   `last_hero_timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -885,3 +885,63 @@ UNLOCK TABLES;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
 -- Dump completed on 2019-05-14 19:17:17
+
+DROP TABLE IF EXISTS `type_transactions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `type_transactions` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `nom` text CHARACTER SET utf8 NOT NULL,
+  `description` text CHARACTER SET utf8 NOT NULL,
+  `couleur` text CHARACTER SET utf8 NOT NULL,
+  `visible` tinyint(1) NOT NULL DEFAULT '1',
+  `id_createur` int(11) NOT NULL DEFAULT '0',
+  `id_last_hero` int(11) NOT NULL DEFAULT '0',
+  `last_hero_timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `UN_Typetransactions_nom` (`nom`(255)),
+  KEY `FK_Typetransactions_Createur` (`id_createur`),
+  KEY `FK_Typetransactions_Editeur` (`id_last_hero`),
+  CONSTRAINT `FK_Typetransactions_Createur` FOREIGN KEY (`id_createur`) REFERENCES `utilisateurs` (`id`),
+  CONSTRAINT `FK_Typetransactions_Editeur` FOREIGN KEY (`id_last_hero`) REFERENCES `utilisateurs` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `moyens_paiement`
+--
+
+LOCK TABLES `moyens_paiement` WRITE;
+
+
+INSERT INTO `type_transactions` VALUES (1,'2023-02-01 00:00:00','Erreur de caisse','Différence entre le montant enregistré dans Oressource et le montant réellement perçu','#E23343',1,1,1,'2023-02-01 00:00:00'),(2,'2023-02-01 00:00:00','Don','Don en argent','#32B0E7',1,1,1,'2023-02-01 00:00:00'),(3,'2023-02-01 00:00:00','Adhésion','Adhésion des individus à la structure','#32E7B6',1,1,1,'2023-02-01 00:00:00');
+
+UNLOCK TABLES;
+
+
+CREATE TABLE `autres_transactions` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `somme` decimal(9,2) NOT NULL,
+  `commentaire` text CHARACTER SET utf8 NOT NULL,
+  `id_type_transactions` int(11) NOT NULL,
+  `id_point_vente` int(11) NOT NULL,
+  `id_createur` int(11) NOT NULL DEFAULT '0',
+  `id_last_hero` int(11) NOT NULL DEFAULT '0',
+  `last_hero_timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `FK_AutresTransactions_TypeTransactions` (`id_type_transactions`),
+  KEY `FK_AutresTransactions_PointVente` (`id_point_vente`),
+  KEY `FK_AutresTransactions_Createur` (`id_createur`),
+  KEY `FK_AutresTransactions_Editeur` (`id_last_hero`),
+  CONSTRAINT `FK_AutresTransactions_PointVente` FOREIGN KEY (`id_point_vente`) REFERENCES `points_vente` (`id`),
+  CONSTRAINT `FK_AutresTransactions_Createur` FOREIGN KEY (`id_createur`) REFERENCES `utilisateurs` (`id`),
+  CONSTRAINT `FK_AutresTransactions_Editeur` FOREIGN KEY (`id_last_hero`) REFERENCES `utilisateurs` (`id`),
+  CONSTRAINT `FK_AutresTransactions_TypeTransactions` FOREIGN KEY (`id_type_transactions`) REFERENCES `type_transactions` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+LOCK TABLES `autres_transactions` WRITE;
+/*!40000 ALTER TABLE `ventes` DISABLE KEYS */;
+/*!40000 ALTER TABLE `ventes` ENABLE KEYS */;
+UNLOCK TABLES;

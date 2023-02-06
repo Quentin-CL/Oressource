@@ -846,3 +846,10 @@ function bilan_ventes(
   $stmt->closeCursor();
   return $bilan;
 }
+
+function types_transactions(PDO $bdd): array
+{
+  $sql = 'SELECT id, nom, couleur, visible, description, timestamp
+  FROM type_transactions';
+  return fetch_all($sql, $bdd);
+}
