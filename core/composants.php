@@ -662,3 +662,51 @@ function mailInput(array $props, string $state): string
 <?php
   return ob_get_clean();
 }
+
+function modal(array $props)
+{
+?>
+  <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="myModalLabel">Autres transactions</h4>
+        </div>
+        <div class="modal-body">
+          <form class="form-horizontal" action="">
+            <div class="form-group">
+              <label class="control-label col-md-4" for="type-transaction">Type de transaction :</label>
+              <div class="col-md-7">
+                <select class="form-control" name="type-transaction" id="type-transaction">
+                  <option value="">Veuillez sélectionner</option>
+                  <?php foreach ($props as $type) { ?>
+                    <option value="<?= $type['id'] ?>"><?= $type['nom'] ?></option>
+                  <?php } ?>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="control-label col-md-4" for="somme-transaction" id="label-transaction">Somme perçue :</label>
+              <div class="col-md-7">
+                <input type="number" name="somme" id="somme-transaction" class="form-control">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="control-label col-md-4" for="commentaire-transaction">Commentaire :</label>
+              <div class="col-md-7">
+                <textarea name="commentaire-transaction" id="commentaire-transaction" cols="30" rows="5" class="form-control"></textarea>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default close-transaction" data-dismiss="modal">Annuler</button>
+          <button type="button" class="btn btn-primary save-transaction">Sauvegarder</button>
+        </div>
+      </div>
+    </div>
+  </div>
+<?php
+}

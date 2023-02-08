@@ -31,7 +31,7 @@ if (is_valid_session() && is_allowed_verifications()) {
   $rembs = vendu_by_id_vente($bdd, $id);
 
   require_once 'tete.php';
-  ?>
+?>
   <div class="container">
     <h1>Modifier le remboursement n° <?= $_GET['nvente']; ?></h1>
     <div class="panel-body">
@@ -65,11 +65,13 @@ if (is_valid_session() && is_allowed_verifications()) {
             <td><?= $r['quantite']; ?></td>
             <td><?= $r['remboursement']; ?></td>
             <td><?= $users[$r['id_createur']]['mail'] ?></td>
-            <td><form action="modification_verification_objet_remboursement.php" method="post">
+            <td>
+              <form action="modification_verification_objet_remboursement.php" method="post">
                 <input type="hidden" name="id" value="<?= $r['id']; ?>">
                 <input type="hidden" name="nvente" value="<?= $id ?>">
                 <input type="hidden" name="quantite" value="<?= $r['quantite']; ?>">
-                <input type="hidden" name="remboursement"value="<?= $r['remboursement']; ?>">
+                <input type="hidden" name="remboursement" value="<?= $r['remboursement']; ?>">
+                <input type="hidden" name="timestamp" value="<?= $r['timestamp']; ?>">
                 <input type="hidden" name="date1" value="<?= $_POST['date1']; ?>">
                 <input type="hidden" name="date2" value="<?= $_POST['date2']; ?>">
                 <input type="hidden" name="npoint" value="<?= $_POST['npoint']; ?>">
@@ -83,7 +85,7 @@ if (is_valid_session() && is_allowed_verifications()) {
     </table>
   </div><!-- /.container -->
 
-  <?php
+<?php
   require_once 'pied.php';
 } else {
   header('Location: ../moteur/destroy.php');

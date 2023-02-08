@@ -580,6 +580,10 @@ function encaisse_transaction() {
   }
 }
 
+/**
+ * Fait appel à la base de donnée pour connaitre le chiffre de vente du jour
+ *
+ */
 function update_chiffre_du_jour() {
   fetch('../moteur/chiffre_du_jour.php', {
     method: 'POST',
@@ -599,6 +603,10 @@ function update_chiffre_du_jour() {
 
 let isListening = false;
 
+/**
+ * Gére l'affichage et les fonctionnalités associés au calcul de l'erreur de caisse
+ *
+ */
 function calculer_erreur_de_caisse() {
   const value = document.querySelector("#type-transaction").value;
   const label = document.querySelector("#label-transaction");
@@ -617,6 +625,10 @@ function calculer_erreur_de_caisse() {
   }
 }
 
+/**
+ * Affiche dynamiquement l'erreur de caisse
+ *
+ */
 function afficher_erreur_de_caisse() {
   const somme = document.querySelector("#somme-transaction");
   removeErrorCaisse();
@@ -635,6 +647,10 @@ function removeErrorCaisse() {
   }
 }
 
+/**
+ * Reset de la transaction
+ *
+ */
 function reset_transaction() {
   const type = document.querySelector("#type-transaction");
   const somme = document.querySelector("#somme-transaction");

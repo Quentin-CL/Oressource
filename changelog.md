@@ -29,7 +29,8 @@ Version comprenant des ameliorations d'ergonomie du logiciel et d'ajout de fonct
 - Ajout de la possibilité de modifier la date de création de chaque ventes
 - Fix d'un bug qui empeché la visualisation des sorties poubelles et déchetterie dans la page verifier les sorties hors-boutiques. Ajout d'un "type" qui est manquant pour ces catégories.
 - Suppression du mecanisme qui affectait une point moyen faux à toute les entités non pesées dans le bilan des ventes. On ignore maintenant les entités non pesées et on affecte le même poids à toute les entités d'une même ticket et d'un même type. Ajout des proportions de vente sur le bilan de masse et de chiffre d'affaire.
-- Suppresion de la possibilité de changer la quantité pour la vente par lot. Elle est fixé à un 1.
+- Supression de la possibilité de changer la quantité pour la vente par lot. Elle est fixé à un 1.
+- Ajout de la possibilité d'enregistrer des "autres transactions" comme les dons, les adhesions et les "erreurs de caisse" qui sont presentes par defaut. Cette fonctionnalité est accesible par un bouton placé dans le page de vente. L'erreur de caisse est calculé en soustrayant à l'entrée utilisateur (le chiffre de caisse du jour) au montant total des ventes enregistrer du jour. Ces transactions sont ajouté à la page de bilan, à la page des 30 dernières ventes et à la page de visualisation des ventes. Pour créer cette fonctionnalité, deux nouvelles tables sont créées dans la base de données: type_transaction et autres_transactions.
 
 ### Version v0.3.x
 

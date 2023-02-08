@@ -44,6 +44,9 @@ if (is_valid_session() && is_allowed_bilan()) {
   $chiffre_affaire = chiffre_affaire_mode_paiement($bdd, $time_debut, $time_fin, $numero);
   $nb_ventes = nb_ventes($bdd, $time_debut, $time_fin, $numero);
   $remb_nb = nb_remboursements($bdd, $time_debut, $time_fin, $numero);
+  $bilans_transactions = bilan_transactions_par_type($bdd, $time_debut, $time_fin, $numero);
+  $bilan_tran = bilan_transactions($bdd, $time_debut, $time_fin, $numero);
+  $nb_tran = $bilan_tran['nb_tran'];
 
   $points_ventes = filter_visibles(points_ventes($bdd));
   $bilan_pesee_mix = array_reduce(array_keys($bilans_pesees_types), function ($acc, $e)
@@ -99,7 +102,7 @@ if (is_valid_session() && is_allowed_bilan()) {
 
       <div class="row">
         <h2><?= ($date1 === $date2) ? "Le $date1" : "Du $date1 au $date2"; ?> :</h2>
-        <?php if (!($nb_ventes > 0 || $remb_nb > 0)) { ?>
+        <?php if (!($nb_ventes > 0 || $remb_nb > 0 || $nb_tran > 0)) { ?>
           <img src="../images/nodata.jpg" class="img-responsive" alt="Responsive image">
         <?php
         } else { ?>
@@ -114,7 +117,7 @@ if (is_valid_session() && is_allowed_bilan()) {
                     </tr>
                   <?php } ?>
                   <tr>
-                    <td>Chiffre total dégagé :</td>
+                    <td>Chiffre total dégagé (vente) :</td>
                     <td><?= $bilans['chiffre_degage']; ?> €</td>
                   </tr>
                   <tr>
@@ -143,6 +146,14 @@ if (is_valid_session() && is_allowed_bilan()) {
                     <td><?= $bilans['remb_somme']; ?> €</td>
                   </tr>
                   <tr>
+                    <td>Nombre d'autres transactions :</td>
+                    <td><?= $nb_tran; ?></td>
+                  </tr>
+                  <tr>
+                    <td>Somme totale perçue (transaction) :</td>
+                    <td><?= $bilan_tran['chiffre_total']; ?> €</td>
+                  </tr>
+                  <tr>
                     <td>Masse pesée en caisse :</td>
                     <td><?= $bilans['vendu_masse']; ?> kg</td>
                   </tr>
@@ -152,12 +163,16 @@ if (is_valid_session() && is_allowed_bilan()) {
 
                   <tr>
                     <td align=center colspan=3>
-                      <a href="../moteur/export_bilanv.php?numero=<?= $numero; ?>&<?= $date_query; ?>">
-                        <button type="button" class="btn btn-default btn-xs" style="margin-bottom: 5px;">Exporter les ventes de cette période (.csv)</button>
-                      </a>
-                      <a href="../moteur/export_bilanv_partype.php?numero=<?= $numero; ?>&<?= $date_query; ?>">
-                        <button type="button" class="btn btn-default btn-xs">Exporter les ventes de cette période par type (.csv)</button>
-                      </a>
+                      <div class="btn-group">
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                          Exporter (.csv) <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                          <li><a href="../moteur/export_bilanv.php?numero=<?= $numero; ?>&<?= $date_query; ?>">Ventes detaillés</a></li>
+                          <li><a href="../moteur/export_bilanv_partype.php?numero=<?= $numero; ?>&<?= $date_query; ?>">Ventes par type</a></li>
+                          <li><a href="../moteur/export_bilanv_transaction.php?numero=<?= $numero; ?>&<?= $date_query; ?>">Transactions</a></li>
+                        </ul>
+                      </div>
                     </td>
                   </tr>
 
@@ -193,7 +208,7 @@ if (is_valid_session() && is_allowed_bilan()) {
             </div>
 
             <div class="col-md-6 ">
-              <h3 style="text-align:center;">Chiffre de caisse : <?= $bilans['chiffre_degage'] - $bilans['remb_somme']; ?> €</h3>
+              <h3 style="text-align:center;">Chiffre de caisse : <?= $bilans['chiffre_degage'] - $bilans['remb_somme'] + $bilan_tran['chiffre_total']; ?> €</h3>
               <h4>Récapitulatif par type d'objet</h4>
               <table class="table table-hover">
                 <thead>
@@ -222,6 +237,31 @@ if (is_valid_session() && is_allowed_bilan()) {
                   <?php } ?>
                 </tbody>
               </table>
+
+              <h4>Récapitulatif des autres transactions</h4>
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th>Type de transaction</th>
+                    <th>Chiffre dégagé en €</th>
+                    <th>Nombre</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  <?php foreach ($bilans_transactions as $id => $bilan_transaction) { ?>
+                    <tr>
+                      <th scope="row">
+                        <!-- <a href="./jours.php?<?= $date_query; ?>&type=<?= $id; ?>"><?= $bilan_transaction['nom']; ?></a> -->
+                        <?= $bilan_transaction['nom']; ?>
+                      </th>
+                      <td><?= $bilan_transaction['chiffre_degage']; ?></td>
+                      <td><?= $bilan_transaction['quantite']; ?></td>
+                    </tr>
+                  <?php } ?>
+                </tbody>
+              </table>
+
 
               <h3>Récapitulatif des masses pesées à la caisse</h3>
               <h5><em>Les objets non pesés sont ignorés dans le bilan des masses</em></h5>

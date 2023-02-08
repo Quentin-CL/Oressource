@@ -18,51 +18,65 @@
  */
 
 session_start();
-if (isset($_SESSION['id']) && $_SESSION['systeme'] === 'oressource' && (strpos($_SESSION['niveau'], 'h') !== false)) {
+
+require_once '../core/requetes.php';
+require_once '../core/session.php';
+
+if (is_valid_session() && is_allowed_verifications()) {
+  require_once '../moteur/dbconfig.php';
+  $users = map_by(utilisateurs($bdd), 'id');
+
+
+  $reponse = $bdd->prepare('SELECT commentaire, timestamp, somme FROM autres_transactions WHERE id = :id_tran');
+  $reponse->execute(['id_tran' => $_GET['ntran']]);
+  $transaction = $reponse->fetch();
+  $commentaire = $transaction['commentaire'];
+  $timestamp = substr(str_replace(' ', 'T', $transaction['timestamp']), 0, -3);
+  $somme = $transaction['somme'];
+  $reponse->closeCursor();
+
   require_once 'tete.php';
-  $timestamp = substr(str_replace(' ', 'T', $_POST['timestamp']), 0, -3);
 ?>
   <div class="container">
-    <h1>Modifier l'objet remboursé n° <?= $_POST['id']; ?> appartenant au remboursement n° <?= $_POST['nvente']; ?> </h1>
+    <h1>Modifier la transaction <em><?= $_POST['type']; ?></em> n° <?= $_GET['ntran']; ?></h1>
     <div class="panel-body">
       <br>
       <div class="row">
-        <form action="../moteur/modification_verification_objet_remboursement_post.php" method="post">
-          <input type="hidden" name="nvente" value="<?= $_POST['nvente']; ?>">
-          <input type="hidden" name="id" value="<?= $_POST['id']; ?>">
+        <form action="../moteur/modification_verification_transaction_post.php?ntran=<?= $_GET['ntran']; ?>" method="post">
+          <input type="hidden" name="id" value="<?= $_GET['ntran']; ?>">
           <input type="hidden" name="date1" value="<?= $_POST['date1']; ?>">
           <input type="hidden" name="date2" value="<?= $_POST['date2']; ?>">
           <input type="hidden" name="npoint" value="<?= $_POST['npoint']; ?>">
 
-
           <div class="col-md-3">
-            <label for="datetime">Date de création:</label>
+            <label for="datetime">Date de création :</label>
             <input type="datetime-local" name="datetime" id="datetime" value="<?= $timestamp ?>">
           </div>
 
           <div class="col-md-3">
-            <label for="quantite">Quantité:</label>
-            <br><input type="text" value="<?= $_POST['quantite']; ?>" name="quantite" id="quantite" class="form-control" required>
+            <label for="somme">Somme perçue :</label>
+            <input type="number" name="somme" id="somme" value="<?= $somme ?>">
           </div>
 
           <div class="col-md-3">
-            <label for="remboursement">Prix:</label>
-            <br><input type="text" value="<?= $_POST['remboursement']; ?>" name="remboursement" id="remboursement" class="form-control" required>
+            <label for="commentaire">Commentaire :</label>
+            <textarea name="commentaire" id="commentaire" class="form-control"><?= $commentaire ?></textarea>
           </div>
 
           <div class="col-md-3">
             <br>
             <button name="creer" class="btn btn-warning">Modifier</button>
+            <a href="verif_vente.php?date1=<?= $_POST['date1']; ?>&date2=<?= $_POST['date2']; ?>&numero=<?= $_POST['npoint']; ?>">
+              <button name="creer" class="btn" style="float: right;">Annuler</button>
+            </a>
           </div>
         </form>
       </div>
-
     </div>
 
-  </div><!-- /.container -->
-<?php
+  <?php
   require_once 'pied.php';
 } else {
   header('Location: ../moteur/destroy.php');
 }
-?>
+  ?>

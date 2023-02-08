@@ -42,9 +42,9 @@ if (is_valid_session() && $_SESSION['viz_caisse'] && is_allowed_vente_id($numero
     <div class="row">
       <div class="col-md-11">
         <ul class="nav nav-tabs">
-          <li class="active"><a href="#">Ventes</a></li>
-          <li>
-            <a href="viz_transactions.php?numero=<?= $numero; ?>">Autres transactions</a>
+          <li><a href="viz_caisse.php?numero=<?= $numero; ?>">Ventes</a></li>
+          <li class="active">
+            <a href="#">Autres transactions</a>
           </li>
         </ul>
       </div>
@@ -55,45 +55,22 @@ if (is_valid_session() && $_SESSION['viz_caisse'] && is_allowed_vente_id($numero
         <tr>
           <th>#</th>
           <th>Date de création</th>
-          <th>Masse</th>
-          <th>Crédit</th>
-          <th>Débit</th>
-          <th>Nombre d'objets</th>
-          <th>Moyen de paiement</th>
+          <th>Somme</th>
+          <th>Type de transaction</th>
           <th>Commentaire</th>
           <th>Auteur de la ligne</th>
-          <th>Visualiser</th>
         </tr>
       </thead>
 
       <tbody>
-        <?php foreach (viz_caisse($bdd, $numero, $nb_viz_caisse) as $vente) { ?>
+        <?php foreach (viz_transaction($bdd, $numero, $nb_viz_caisse) as $transaction) { ?>
           <tr>
-            <td><?= $vente['id']; ?></td>
-            <td><?= $vente['date_creation']; ?></td>
-            <td><?= $vente['masse']; ?></td>
-            <td><?= $vente['credit']; ?></td>
-            <td><?= $vente['debit']; ?></td>
-            <td><?= $vente['quantite']; ?></td>
-            <td><span class="badge" style="background-color: <?= $vente['coul']; ?>"><?= $vente['moyen']; ?></span></td>
-            <td style="width:100px"><?= $vente['commentaire']; ?></td>
-            <td><?= $vente['mail']; ?></td>
-            <td>
-              <?php if ($vente['credit'] > 0 && !($vente['debit'] > 0)) { ?>
-                <form action="viz_vente.php?nvente=<?= $vente['id']; ?>" method="post">
-                  <input type="hidden" name="id" id="id" value="<?= $vente['id']; ?>">
-                  <input type="hidden" name="npoint" id="npoint" value="<?= $numero; ?>">
-                  <button class="btn btn-primary btn-sm"><span class="glyphicon glyphicon-search"></span></button>
-                </form>
-              <?php
-              } else { ?>
-                <form action="viz_remboursement.php?nvente=<?= $vente['id']; ?>" method="post">
-                  <input type="hidden" name="id" id="id" value="<?= $vente['id']; ?>">
-                  <input type="hidden" name="npoint" id="npoint" value="<?= $numero; ?>">
-                  <button class="btn btn-danger btn-sm"><span class="glyphicon glyphicon-search"></span></button>
-                </form>
-              <?php } ?>
-            </td>
+            <td><?= $transaction['id']; ?></td>
+            <td><?= $transaction['date_creation']; ?></td>
+            <td><?= $transaction['somme']; ?></td>
+            <td><span class="badge" style="background-color: <?= $transaction['couleur']; ?>"><?= $transaction['type']; ?></span></td>
+            <td><?= $transaction['commentaire']; ?></td>
+            <td><?= $transaction['mail']; ?></td>
           </tr>
         <?php } ?>
       </tbody>

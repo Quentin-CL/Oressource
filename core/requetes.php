@@ -739,6 +739,38 @@ function viz_collectes(PDO $bdd, int $id_point_collecte, int $offset): array
   return $resultat;
 }
 
+function viz_transaction(PDO $bdd, int $id_point_vente, int $offset): array
+{
+  $sql = "SELECT
+    autres_transactions.id as id,
+    autres_transactions.timestamp as date_creation,
+    autres_transactions.somme as somme,
+    type_transactions.nom as type,
+    type_transactions.couleur as couleur,
+    autres_transactions.commentaire as commentaire,
+    autres_transactions.last_hero_timestamp as lht,
+    utilisateurs.mail as mail
+  from autres_transactions
+  inner join type_transactions
+    on autres_transactions.id_type_transactions = type_transactions.id
+    and DATE(autres_transactions.timestamp) = DATE(NOW())
+    and autres_transactions.id_point_vente = :id_point_vente
+  inner join utilisateurs
+    on utilisateurs.id = autres_transactions.id_createur
+  group by autres_transactions.id, autres_transactions.timestamp, type_transactions.nom,
+  type_transactions.couleur, autres_transactions.commentaire,
+  autres_transactions.last_hero_timestamp, utilisateurs.mail
+  order by autres_transactions.timestamp desc
+  limit 0, :offset";
+  $reqVentes = $bdd->prepare($sql);
+  $reqVentes->bindValue('id_point_vente', $id_point_vente, PDO::PARAM_INT);
+  $reqVentes->bindValue('offset', $offset, PDO::PARAM_INT);
+  $reqVentes->execute();
+  $resultat = $reqVentes->fetchAll(PDO::FETCH_ASSOC);
+  $reqVentes->closeCursor();
+  return $resultat;
+}
+
 function bilan_ventes_par_type(
   PDO $bdd,
   string $start,
@@ -852,4 +884,62 @@ function types_transactions(PDO $bdd): array
   $sql = 'SELECT id, nom, couleur, visible, description, timestamp
   FROM type_transactions';
   return fetch_all($sql, $bdd);
+}
+
+function bilan_transactions_par_type(
+  PDO $bdd,
+  string $start,
+  string $stop,
+  int $id_point_vente = 0
+): array {
+  $cond = ($id_point_vente > 0 ? " AND autres_transactions.id_point_vente = $id_point_vente " : ' ');
+  $sql = "SELECT
+    autres_transactions.id as id,
+    type_transactions.couleur as couleur,
+    type_transactions.nom as nom,
+    SUM(autres_transactions.somme) as chiffre_degage,
+    COUNT(autres_transactions.somme) as quantite
+  FROM autres_transactions
+  INNER JOIN type_transactions
+  ON autres_transactions.id_type_transactions = type_transactions.id
+    $cond
+  WHERE DATE(autres_transactions.timestamp)
+  BETWEEN :du AND :au
+  GROUP BY type_transactions.id, type_transactions.couleur, type_transactions.nom";
+  $stmt = $bdd->prepare($sql);
+  $stmt->bindValue(':du', $start, PDO::PARAM_STR);
+  $stmt->bindValue(':au', $stop, PDO::PARAM_STR);
+  $stmt->execute();
+
+  $result = [];
+  while ($data = $stmt->fetch(PDO::FETCH_ASSOC)) {
+    $id = $data['id'];
+    unset($data['id']);
+    $result[$id] = $data;
+  }
+  $stmt->closeCursor();
+  return $result;
+}
+
+function bilan_transactions(
+  PDO $bdd,
+  string $start,
+  string $stop,
+  int $id_point_vente = 0
+): array {
+  $cond = ($id_point_vente > 0 ? " AND autres_transactions.id_point_vente = $id_point_vente " : ' ');
+  $sql = "SELECT
+    COUNT(DISTINCT(autres_transactions.id)) as nb_tran,
+    SUM(autres_transactions.somme) as chiffre_total
+  FROM autres_transactions
+  WHERE DATE(autres_transactions.timestamp)
+  BETWEEN :du AND :au
+  $cond";
+  $stmt = $bdd->prepare($sql);
+  $stmt->bindValue(':du', $start, PDO::PARAM_STR);
+  $stmt->bindValue(':au', $stop, PDO::PARAM_STR);
+  $stmt->execute();
+  $result = $stmt->fetch(PDO::FETCH_ASSOC);
+  $stmt->closeCursor();
+  return $result;
 }

@@ -34,38 +34,26 @@ if (is_valid_session() && is_allowed_verifications()) {
   $time_debut = DateTime::createFromFormat('d-m-Y', $date1)->format('Y-m-d') . ' 00:00:00';
   $time_fin = DateTime::createFromFormat('d-m-Y', $date2)->format('Y-m-d') . ' 23:59:59';
 
-  $users = map_by(utilisateurs($bdd), 'id');
-
   $req = $bdd->prepare('SELECT
-    ventes.id,
-    ventes.id_createur,
-    ventes.last_hero_timestamp,
-    ventes.timestamp,
-    ventes.id_last_hero,
-    ventes.commentaire,
-    moyens_paiement.nom moyen,
-    moyens_paiement.couleur,
-    SUM(' . vendus_case_lot_unit() . ') vente,
-    SUM(vendus.quantite) quantite,
-    SUM(vendus.remboursement * vendus.quantite) remb,
-    SUM(pesees_vendus.masse * pesees_vendus.quantite) masse
-  FROM ventes
-  INNER JOIN moyens_paiement
-  ON ventes.id_moyen_paiement = moyens_paiement.id
-  INNER JOIN vendus
-  ON vendus.id_vente = ventes.id
-  LEFT JOIN pesees_vendus
-  ON pesees_vendus.id = vendus.id
-  WHERE ventes.id_point_vente = :id_point_vente
-  AND DATE(ventes.timestamp) BETWEEN :du AND :au
-  GROUP BY ventes.id,
-    ventes.id_createur,
-    ventes.last_hero_timestamp,
-    ventes.timestamp,
-    ventes.id_last_hero,
-    ventes.commentaire,
-    moyens_paiement.nom,
-    moyens_paiement.couleur');
+  autres_transactions.id as id,
+  autres_transactions.timestamp as timestamp,
+  autres_transactions.somme as somme,
+  type_transactions.nom as type,
+  type_transactions.couleur as couleur,
+  autres_transactions.commentaire as commentaire,
+  autres_transactions.last_hero_timestamp as lht,
+  utilisateurs.mail as mail
+  from autres_transactions
+  inner join type_transactions
+  on autres_transactions.id_type_transactions = type_transactions.id
+  and DATE(autres_transactions.timestamp) BETWEEN :du AND :au
+  and autres_transactions.id_point_vente = :id_point_vente
+  inner join utilisateurs
+  on utilisateurs.id = autres_transactions.id_createur
+  group by autres_transactions.id, autres_transactions.timestamp, type_transactions.nom,
+  type_transactions.couleur, autres_transactions.commentaire,
+  autres_transactions.last_hero_timestamp, utilisateurs.mail
+');
   $req->bindParam(':id_point_vente', $numero, PDO::PARAM_INT);
   $req->bindParam(':du', $time_debut, PDO::PARAM_STR);
   $req->bindParam(':au', $time_fin, PDO::PARAM_STR);
@@ -76,14 +64,14 @@ if (is_valid_session() && is_allowed_verifications()) {
 ?>
 
   <div class="container">
-    <h1>Verification des ventes</h1>
+    <h1>Verification des ventes et des transactions</h1>
 
     <div class="row">
       <div class="col-md-11">
         <ul class="nav nav-tabs">
-          <li class="active"><a href="#">Ventes</a></li>
-          <li>
-            <a href="verif_transactions.php?numero=<?= $numero; ?>&date1=<?= $date1 ?>&date2=<?= $date2 ?>">Autres transactions</a>
+          <li><a href="verif_vente.php?numero=<?= $numero; ?>&date1=<?= $date1 ?>&date2=<?= $date2 ?>">Ventes</a></li>
+          <li class="active">
+            <a href="#">Autres transactions</a>
           </li>
         </ul>
       </div>
@@ -109,12 +97,9 @@ if (is_valid_session() && is_allowed_verifications()) {
       <thead>
         <tr>
           <th>#</th>
-          <th>Moment de la vente</th>
-          <th>Crédit</th>
-          <th>Débit</th>
-          <th>Nombre d'objets</th>
-          <th>Moyen de paiement</th>
-          <th>Masse totale</th>
+          <th>Moment de la transaction</th>
+          <th>Type de transaction</th>
+          <th>Somme</th>
           <th>Commentaire</th>
           <th>Auteur</th>
           <th></th>
@@ -124,41 +109,27 @@ if (is_valid_session() && is_allowed_verifications()) {
       </thead>
       <tbody>
         <?php
-        foreach ($data as $v) {
-          $ventes = $v['vente'];
-          $remboursements = $v['remb'];
-          $quantite = $v['quantite'];
-          $masse = $v['masse'];
-          $rembo = ($remboursements > 0.00);
+        foreach ($data as $t) {
         ?>
           <tr>
+            <td><?= $t['id'] ?></td>
+            <td><?= $t['timestamp']; ?></td>
+            <td><span class="badge" style="background-color: <?= $t['couleur']; ?>"><?= $t['type']; ?></span></td>
+            <td><?= $t['somme'] ?></td>
+            <td style="width:100px"><?= $t['commentaire']; ?></td>
+            <td><?= $t['mail'] ?></td>
             <td>
-              <span <?= $rembo
-                      ? '(class="badge" style="background-color:red"'
-                      : '' ?>><?= $v['id'] ?></span>
-            </td>
-            <td><?= $v['timestamp']; ?></td>
-            <td><?= $ventes ?></td>
-            <td><?= $remboursements ?></td>
-            <td><?= $quantite ?></td>
-            <td>
-              <span class="badge" style="background-color:<?= $v['couleur']; ?>"><?= $v['moyen']; ?></span>
-            </td>
-            <td><?= $masse > 0 ? $masse : '' ?></td>
-            <td style="width:100px"><?= $v['commentaire']; ?></td>
-            <td><?= $users[$v['id_createur']]['mail'] ?></td>
-            <td>
-              <form action="modification_verification_<?= $rembo ? 'remboursement' : 'vente' ?>.php?nvente=<?= $v['id']; ?>" method="post">
-                <input type="hidden" name="moyen" value="<?= $v['moyen']; ?>">
-                <input type="hidden" name="id" value="<?= $v['id']; ?>">
+              <form action="modification_verification_transaction.php?ntran=<?= $t['id']; ?>" method="post">
+                <input type="hidden" name="type" value="<?= $t['type']; ?>">
+                <input type="hidden" name="id" value="<?= $t['id']; ?>">
                 <input type="hidden" name="date1" value="<?= $date1 ?>">
                 <input type="hidden" name="date2" value="<?= $date2; ?>">
                 <input type="hidden" name="npoint" value="<?= $numero; ?>">
                 <button class="btn btn-warning btn-sm">Modifier</button>
               </form>
             </td>
-            <td><?= $v['last_hero_timestamp'] !== $v['timestamp'] ? $users[$v['id_last_hero']]['mail'] : '' ?></td>
-            <td><?= $v['last_hero_timestamp'] !== $v['timestamp'] ? $v['last_hero_timestamp'] : '' ?></td>
+            <td><?= $t['lht'] !== $t['timestamp'] ? $t['mail'] : '' ?></td>
+            <td><?= $t['lht'] !== $t['timestamp'] ? $t['lht'] : '' ?></td>
           </tr>
         <?php } ?>
       </tbody>
