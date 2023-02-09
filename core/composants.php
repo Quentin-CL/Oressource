@@ -689,7 +689,7 @@ function modal(array $props)
             <div class="form-group">
               <label class="control-label col-md-4" for="somme-transaction" id="label-transaction">Somme perçue :</label>
               <div class="col-md-7">
-                <input type="number" name="somme" id="somme-transaction" class="form-control">
+                <input type="number" min="0" name="somme" id="somme-transaction" class="form-control">
               </div>
             </div>
             <div class="form-group">

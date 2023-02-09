@@ -57,6 +57,17 @@ function fetch_all(string $sql, PDO $bdd): array
   return $result;
 }
 
+function contain_a_negative_value($array1, $array2)
+{
+  foreach ($array1 as $key => $value) {
+    if (array_key_exists($key, $array2)) {
+      if ($value - $array2[$key] < 0) {
+        return true;
+      };
+    };
+  }
+  return false;
+}
 /*
  * Attention à bien nommer dans la chaine $sql le champ de l'id ':id'.
  */
@@ -301,7 +312,8 @@ function types_poubelles_id(PDO $bdd, int $id): array
 function types_dechets_evac(PDO $bdd): array
 {
   $sql = 'SELECT id, nom, couleur, visible, description, timestamp
-  FROM type_dechets_evac';
+  FROM type_dechets_evac
+  ORDER BY nom';
   return fetch_all($sql, $bdd);
 }
 
@@ -316,7 +328,8 @@ function types_dechets_evac_id(PDO $bdd, int $id): array
 function types_dechets(PDO $bdd): array
 {
   $sql = 'SELECT id, nom, couleur, description, visible, timestamp
-  FROM type_dechets';
+  FROM type_dechets
+  ORDER BY nom';
   return fetch_all($sql, $bdd);
 }
 

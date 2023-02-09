@@ -36,6 +36,8 @@ if (is_valid_session() && (strpos($_SESSION['niveau'], 'h') !== false)) {
 
   $id = $_GET['id'];
   $collecte = collectes_id($bdd, $id);
+  $nowDate = time();
+  $mysql_nowDate = date("Y-m-d H:i:s", $nowDate);
 
   $req = $bdd->prepare('SELECT
       pesees_collectes.id,
@@ -85,7 +87,7 @@ if (is_valid_session() && (strpos($_SESSION['niveau'], 'h') !== false)) {
           </div>
           <div class="col-md-2">
             <label for="datetime">Date de création:</label>
-            <input type="datetime-local" name="datetime" id="datetime" value="<?= $timestamp ?>">
+            <input type="datetime-local" name="datetime" id="datetime" value="<?= $timestamp ?>" max="<?= $mysql_nowDate ?>">
           </div>
           <div class="col-md-2">
             <br>

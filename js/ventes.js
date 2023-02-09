@@ -81,11 +81,10 @@ function new_state() {
     // TODO: Attention c'est hardcodé alors que c'est géré en base!
     // Voir commentaire de la fonction! :)
     // Vente par lot passé par defaut 
-    // TODO: Gerer la desactivation de la vente par lot
     moyen: 1,
     ticket: new Ticket(),
     last: undefined,
-    vente_unite: false,
+    vente_unite: window.OressourceEnv.lots ? false : true,
   };
   // Hack pour les impressions...
   window.OressourceEnv.tickets = s.ticket;

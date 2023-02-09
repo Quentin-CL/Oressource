@@ -48,6 +48,8 @@ if (is_valid_session() && is_allowed_bilan()) {
   $bilan_tran = bilan_transactions($bdd, $time_debut, $time_fin, $numero);
   $nb_tran = $bilan_tran['nb_tran'];
 
+  $isNegativeSubstraction = contain_a_negative_value(array_column($bilans_types, 'chiffre_degage'), array_column($bilans_types, 'remb_somme'));
+  var_dump($isNegativeSubstraction);
   $points_ventes = filter_visibles(points_ventes($bdd));
   $bilan_pesee_mix = array_reduce(array_keys($bilans_pesees_types), function ($acc, $e)
   use ($bilans_pesees_types, $bilans_types) {
@@ -168,7 +170,7 @@ if (is_valid_session() && is_allowed_bilan()) {
                           Exporter (.csv) <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu">
-                          <li><a href="../moteur/export_bilanv.php?numero=<?= $numero; ?>&<?= $date_query; ?>">Ventes detaillés</a></li>
+                          <li><a href="../moteur/export_bilanv.php?numero=<?= $numero; ?>&<?= $date_query; ?>">Ventes detaillées</a></li>
                           <li><a href="../moteur/export_bilanv_partype.php?numero=<?= $numero; ?>&<?= $date_query; ?>">Ventes par type</a></li>
                           <li><a href="../moteur/export_bilanv_transaction.php?numero=<?= $numero; ?>&<?= $date_query; ?>">Transactions</a></li>
                         </ul>
@@ -210,6 +212,11 @@ if (is_valid_session() && is_allowed_bilan()) {
             <div class="col-md-6 ">
               <h3 style="text-align:center;">Chiffre de caisse : <?= $bilans['chiffre_degage'] - $bilans['remb_somme'] + $bilan_tran['chiffre_total']; ?> €</h3>
               <h4>Récapitulatif par type d'objet</h4>
+              <h6 style="color : red"><em>
+                  <?=
+                  $isNegativeSubstraction ? "Au moins un des bilans par type d'objet est negatif et empéche le calcul des proportions de vente" : ""
+                  ?>
+                </em></h6>
               <table class="table table-hover">
                 <thead>
                   <tr>
@@ -232,7 +239,12 @@ if (is_valid_session() && is_allowed_bilan()) {
                       <td><?= $bilan_type['vendu_quantite']; ?></td>
                       <td><?= $bilan_type['remb_somme']; ?></td>
                       <td><?= $bilan_type['remb_quantite']; ?></td>
-                      <td><?= round((($bilan_type['chiffre_degage'] - $bilan_type['remb_somme']) / ($bilans['chiffre_degage'] - $bilans['remb_somme'])) * 100, 2); ?></td>
+                      <td>
+                        <?=
+                        $isNegativeSubstraction ? " " :
+                          round((($bilan_type['chiffre_degage'] - $bilan_type['remb_somme']) / ($bilans['chiffre_degage'] - $bilans['remb_somme'])) * 100, 2);
+                        ?>
+                      </td>
                     </tr>
                   <?php } ?>
                 </tbody>

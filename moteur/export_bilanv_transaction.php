@@ -72,7 +72,8 @@ if (isset($_SESSION['id']) && $_SESSION['systeme'] === 'oressource' && (strpos($
     $reponse2 = $bdd->prepare("SELECT
         autres_transactions.id as id,
         autres_transactions.timestamp,
-        autres_transactions.somme as chiffre_degage
+        autres_transactions.somme as chiffre_degage,
+        autres_transactions.commentaire
         FROM autres_transactions
         WHERE DATE(autres_transactions.timestamp)
         BETWEEN :du AND :au
@@ -81,10 +82,10 @@ if (isset($_SESSION['id']) && $_SESSION['systeme'] === 'oressource' && (strpos($
         ORDER BY autres_transactions.id, autres_transactions.timestamp");
     $reponse2->execute(['du' => $time_debut, 'au' => $time_fin, 'id_tran' => $donnees['id_tran']]);
 
-    $csv_output .= '#' . "\t" . 'Date' . "\t" . 'Somme' . "\t" . "\n";
+    $csv_output .= '#' . "\t" . 'Date' . "\t" . 'Somme' . "\t" . 'Commentaire' . "\t" . "\n";
 
     while ($donnees2 = $reponse2->fetch()) {
-      $csv_output .= $donnees2['id'] . "\t" . $donnees2['timestamp'] . "\t" . $donnees2['chiffre_degage'] . "\t" . "\n";
+      $csv_output .= $donnees2['id'] . "\t" . $donnees2['timestamp'] . "\t" . $donnees2['chiffre_degage'] . "\t" . $donnees2['commentaire'] . "\t" . "\n";
     }
 
     $reponse2->closeCursor();

@@ -34,6 +34,8 @@ if (is_valid_session() && is_allowed_verifications()) {
   $timestamp = substr(str_replace(' ', 'T', $transaction['timestamp']), 0, -3);
   $somme = $transaction['somme'];
   $reponse->closeCursor();
+  $nowDate = time();
+  $mysql_nowDate = date("Y-m-d H:i:s", $nowDate);
 
   require_once 'tete.php';
 ?>
@@ -50,7 +52,7 @@ if (is_valid_session() && is_allowed_verifications()) {
 
           <div class="col-md-3">
             <label for="datetime">Date de création :</label>
-            <input type="datetime-local" name="datetime" id="datetime" value="<?= $timestamp ?>">
+            <input type="datetime-local" name="datetime" id="datetime" max="<?= $mysql_nowDate ?>" value="<?= $timestamp ?>">
           </div>
 
           <div class="col-md-3">

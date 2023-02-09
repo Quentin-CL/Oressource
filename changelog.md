@@ -18,19 +18,19 @@ changements apporté au logiciel.
 Version comprenant des ameliorations d'ergonomie du logiciel et d'ajout de fonctionnalités légéres.
 
 - Deplacement des modules type d'objet/ticket de caisse
-- Changement du style des types d'objet
+- Changement du style des types d'objet et classement par ordre alphabétique
 - Vendu en lot par defaut
 - Suppression du 0 par defaut dans l'input prix unitaire et masse unitaire de l'onglet point de vente
 - Correction d'un bug qui rendait impossible l'ajout de sortie hors-boutique. Il y avait une violation de contrainte de clé étrangère lors de l'ajout ou de la mise à jour d'une ligne enfant dans la table "pesees_sorties". Il s'agit d'une erreur de la base de données SQL qui se produit lorsqu'une valeur de clé étrangère dans la table "pesees_sorties" ne correspond à aucune valeur de clé primaire dans la table "types_poubelles" par exemple. Correction en mettant une valeur par defaut "Null" à ces clés étrangeres.
-- Fix de la fonctionnalité de visualisation d'un vente en particulier accesible dans la page "Visualiser les 30 dernières ventes
-- Ajout de l'historique des 30 dernieres collectes sur le modèles des 30 dernieres ventes
-- Ajout de l'affichage momentané des 3 dernieres ventes
-- L'export des donnée des bilans des ventes et des collectes en .csv est rendu fonctionnel mais a encore besoin d'être amelioré
-- Ajout de la possibilité de modifier la date de création de chaque ventes
-- Fix d'un bug qui empeché la visualisation des sorties poubelles et déchetterie dans la page verifier les sorties hors-boutiques. Ajout d'un "type" qui est manquant pour ces catégories.
-- Suppression du mecanisme qui affectait une point moyen faux à toute les entités non pesées dans le bilan des ventes. On ignore maintenant les entités non pesées et on affecte le même poids à toute les entités d'une même ticket et d'un même type. Ajout des proportions de vente sur le bilan de masse et de chiffre d'affaire.
-- Supression de la possibilité de changer la quantité pour la vente par lot. Elle est fixé à un 1.
-- Ajout de la possibilité d'enregistrer des "autres transactions" comme les dons, les adhesions et les "erreurs de caisse" qui sont presentes par defaut. Cette fonctionnalité est accesible par un bouton placé dans le page de vente. L'erreur de caisse est calculé en soustrayant à l'entrée utilisateur (le chiffre de caisse du jour) au montant total des ventes enregistrer du jour. Ces transactions sont ajouté à la page de bilan, à la page des 30 dernières ventes et à la page de visualisation des ventes. Pour créer cette fonctionnalité, deux nouvelles tables sont créées dans la base de données: type_transaction et autres_transactions.
+- Fix de la fonctionnalité de visualisation d'une vente accessible dans la page "Visualiser les 30 dernières ventes"
+- Ajout de l'historique des 30 dernières collectes sur le modèles des 30 dernieres ventes
+- Ajout de l'affichage momentané des 3 derniéres ventes
+- L'export des données des bilans des ventes et des collectes en .csv est rendu fonctionnel mais a encore besoin d'être amelioré
+- Ajout de la possibilité de modifier la date de création de chaque vente et collecte
+- Fix d'un bug qui empêchait la visualisation des sorties poubelles et déchetteries dans la page verifier les sorties hors-boutiques. Ajout d'un "type" qui est manquant pour ces catégories.
+- Suppression du mecanisme qui affectait une point moyen faux à toutes les entités non pesées dans le bilan des ventes. On ignore maintenant les entités non pesées et on affecte le même poids à toutes les entités d'une même ticket et d'un même type. Ajout des proportions de vente sur le bilan de masse et de chiffre d'affaire.
+- Supression de la possibilité de changer la quantité pour la vente par lot. Elle est fixée à un 1.
+- Ajout de la possibilité d'enregistrer des "autres transactions" comme les dons, les adhesions et les "erreurs de caisse" qui sont presentes par defaut. Cette fonctionnalité est accessible par un bouton placé dans la page de vente. L'erreur de caisse est calculé en soustrayant l'entrée utilisateur (le chiffre de caisse du jour) au montant total des ventes enregistré du jour. Ces transactions sont ajoutées à la page de bilan, à la page des 30 dernières ventes et à la page de visualisation des ventes. Pour créer cette fonctionnalité, deux nouvelles tables sont créées dans la base de données: type_transaction et autres_transactions.
 
 ### Version v0.3.x
 
