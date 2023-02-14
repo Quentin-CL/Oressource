@@ -49,7 +49,6 @@ if (is_valid_session() && is_allowed_bilan()) {
   $nb_tran = $bilan_tran['nb_tran'];
 
   $isNegativeSubstraction = contain_a_negative_value(array_column($bilans_types, 'chiffre_degage'), array_column($bilans_types, 'remb_somme'));
-  var_dump($isNegativeSubstraction);
   $points_ventes = filter_visibles(points_ventes($bdd));
   $bilan_pesee_mix = array_reduce(array_keys($bilans_pesees_types), function ($acc, $e)
   use ($bilans_pesees_types, $bilans_types) {
@@ -214,7 +213,7 @@ if (is_valid_session() && is_allowed_bilan()) {
               <h4>Récapitulatif par type d'objet</h4>
               <h6 style="color : red"><em>
                   <?=
-                  $isNegativeSubstraction ? "Au moins un des bilans par type d'objet est negatif et empéche le calcul des proportions de vente" : ""
+                  $isNegativeSubstraction ? "Au moins un des bilans par type d'objet est negatif et empêche le calcul des proportions de vente" : ""
                   ?>
                 </em></h6>
               <table class="table table-hover">

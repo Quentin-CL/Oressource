@@ -907,7 +907,7 @@ function bilan_transactions_par_type(
 ): array {
   $cond = ($id_point_vente > 0 ? " AND autres_transactions.id_point_vente = $id_point_vente " : ' ');
   $sql = "SELECT
-    autres_transactions.id as id,
+    type_transactions.id as id,
     type_transactions.couleur as couleur,
     type_transactions.nom as nom,
     SUM(autres_transactions.somme) as chiffre_degage,

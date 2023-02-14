@@ -351,7 +351,6 @@ function ticketsClear(data, _) {
 function updateHistoriqueCollecte(data) {
   const masseTotal = data.items.reduce((acc, t) => acc + t.masse, 0.0);
   const idMoyenLocalite = data.localite;
-  console.log(window.OressourceEnv)
   const localite = window.OressourceEnv.localites.find(element => element.id === idMoyenLocalite);
   const historique = document.querySelector(".table tbody");
   if (historique.childElementCount === 3) {
