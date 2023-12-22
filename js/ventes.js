@@ -549,7 +549,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('impression').addEventListener('click', sendAndPrint, false);
   document.querySelector('.save-transaction').addEventListener('click', sendTransaction, false);
   document.querySelector('.btn-autres-transactions').addEventListener('click', update_chiffre_du_jour, false);
-  document.querySelector("#type-transaction").addEventListener('change', calculer_erreur_de_caisse, false);
+  document.querySelector("#type-transaction").addEventListener('change', () => { calculer_erreur_de_caisse(); afficher_selecteur_moyens_paiements() }, false);
 }, false);
 
 
@@ -562,17 +562,16 @@ document.addEventListener('DOMContentLoaded', () => {
 function encaisse_transaction() {
   const type = document.querySelector("#type-transaction");
   const somme = document.querySelector("#somme-transaction");
-  if (type.value !== '' && somme.value !== '') {
+  const moyen = document.querySelector("#moyen-paiement");
+  if (type.value !== '' && somme.value !== '' && (type.value === '1' || moyen.value !== '')) {
     const data = {
       id_user: window.OressourceEnv.id_user,
       id_type: type.value,
+      id_moyen: (type.value === '1' ? null : moyen.value),
       id_point: window.OressourceEnv.point.id,
       somme: (type.value === '1' ? somme.value - window.OressourceEnv.chiffre_du_jour : somme.value),
       commentaire: document.getElementById('commentaire-transaction').value.trim()
     };
-    if (date !== null) {
-      data.date = date.value;
-    }
     return data;
   } else {
     return {};
@@ -612,8 +611,8 @@ function calculer_erreur_de_caisse() {
   const somme = document.querySelector("#somme-transaction");
 
   if (value === '1') {
-    label.innerText = "Chiffre de caisse :";
-    somme.setAttribute("placeholder", "Veuillez entrer le chiffre de caisse du jour")
+    label.innerText = "Montant perçu en espèce :";
+    somme.setAttribute("placeholder", "Entrez le montant perçu en espèce du jour")
     somme.addEventListener('input', afficher_erreur_de_caisse);
     isListening = true;
   } else if (isListening) {
@@ -647,19 +646,41 @@ function removeErrorCaisse() {
 }
 
 /**
+ * Affiche dynamiquement l'erreur de caisse
+ *
+ */
+function afficher_selecteur_moyens_paiements() {
+  const mpContainer = document.querySelector(".mp-container");
+  const value = document.querySelector("#type-transaction").value;
+  mpContainer.innerHTML = "";
+  if (value !== '1' && value !== '') {
+    let contenu = `<label class="control-label col-md-4" for="moyen-paiement">Moyen de paiement :</label>
+    <div class="col-md-7">
+      <select class="form-control" name="moyen_paiement" id="moyen-paiement">
+        <option value="">Veuillez sélectionner</option>`
+    for (const moyen of window.OressourceEnv.moyens_paiement) {
+      contenu += `<option value="${moyen['id']}">${moyen['nom']}</option>`
+    }
+    contenu += '</select></div >'
+    mpContainer.innerHTML = contenu
+  }
+}
+
+/**
  * Reset de la transaction
  *
  */
 function reset_transaction() {
   const type = document.querySelector("#type-transaction");
   const somme = document.querySelector("#somme-transaction");
+  const mpContainer = document.querySelector(".mp-container");
   if (isListening) {
     somme.removeEventListener('input', afficher_erreur_de_caisse);
     somme.setAttribute("placeholder", "")
     removeErrorCaisse();
     document.querySelector("#label-transaction").innerText = "Somme perçue :";
   }
-
+  mpContainer.innerHTML = '';
   document.getElementById('commentaire-transaction').value = '';
   type.value = '';
   somme.value = '';

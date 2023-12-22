@@ -604,11 +604,12 @@ function chiffre_affaire_mode_paiement(
   int $id_point_vente = 0
 ): array {
   $cond = ($id_point_vente > 0 ? " AND ventes.id_point_vente = $id_point_vente " : ' ');
+  $cond2 = ($id_point_vente > 0 ? " AND autres_transactions.id_point_vente = $id_point_vente " : ' ');
   $sql = "SELECT
     ventes.id_moyen_paiement AS id_moyen,
     moyens_paiement.nom AS moyen,
     COUNT(DISTINCT(ventes.id)) AS quantite_vendue,
-    SUM(" . vendus_case_lot_unit() . ") AS total,
+    SUM(" . vendus_case_lot_unit() . ") AS total_vendue,
     SUM(vendus.remboursement) AS remboursement
   FROM moyens_paiement
   INNER JOIN ventes
@@ -618,11 +619,42 @@ function chiffre_affaire_mode_paiement(
   ON vendus.id_vente = ventes.id
   WHERE DATE(vendus.timestamp) BETWEEN :du AND :au
   GROUP BY ventes.id_moyen_paiement, moyens_paiement.nom";
+  $sql2 = "SELECT
+    moyens_paiement.id AS id_moyen,
+    moyens_paiement.nom AS moyen,
+    COUNT(DISTINCT(autres_transactions.id)) AS quantite_transaction,
+    SUM(autres_transactions.somme) AS total_transaction
+  FROM moyens_paiement
+  RIGHT JOIN autres_transactions
+  ON moyens_paiement.id = autres_transactions.id_moyen_paiement
+  $cond2
+  WHERE DATE(autres_transactions.timestamp) BETWEEN :du AND :au
+  GROUP BY autres_transactions.id_moyen_paiement, moyens_paiement.nom";
   $stmt = $bdd->prepare($sql);
+  $stmt2 = $bdd->prepare($sql2);
   $stmt->bindValue(':du', $start, PDO::PARAM_STR);
   $stmt->bindValue(':au', $stop, PDO::PARAM_STR);
+  $stmt2->bindValue(':du', $start, PDO::PARAM_STR);
+  $stmt2->bindValue(':au', $stop, PDO::PARAM_STR);
   $stmt->execute();
-  return $stmt->fetchAll(PDO::FETCH_ASSOC);
+  $stmt2->execute();
+  $ventes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+  $transactions = $stmt2->fetchAll(PDO::FETCH_ASSOC);
+  $res = array();
+  foreach ($ventes as $vente) {
+    $id_moyen = $vente['id_moyen'];
+    $res[$id_moyen]['moyen'] = $vente['moyen'];
+    $res[$id_moyen]['quantite_vendue'] = $vente['quantite_vendue'];
+    $res[$id_moyen]['total_vendue'] = $vente['total_vendue'];
+    $res[$id_moyen]['remboursement'] = $vente['remboursement'];
+  }
+  foreach ($transactions as $transaction) {
+    $id_moyen = isset($transaction['id_moyen']) ? $transaction['id_moyen'] : 1;
+    $res[$id_moyen]['moyen'] = isset($transaction['moyen']) ? $transaction['moyen'] : 'Especes';
+    $res[$id_moyen]['quantite_transaction'] = isset($res[$id_moyen]['quantite_transaction']) ? $res[$id_moyen]['quantite_transaction'] + $transaction['quantite_transaction'] : $transaction['quantite_transaction'];
+    $res[$id_moyen]['total_transaction'] = isset($res[$id_moyen]['total_transaction']) ? $res[$id_moyen]['total_transaction'] + $transaction['total_transaction'] : $transaction['total_transaction'];
+  }
+  return $res;
 }
 
 /// Fonction calculant le nombre de ventes réalisé entre la période $start et
@@ -762,7 +794,9 @@ function viz_transaction(PDO $bdd, int $id_point_vente, int $offset): array
     type_transactions.couleur as couleur,
     autres_transactions.commentaire as commentaire,
     autres_transactions.last_hero_timestamp as lht,
-    utilisateurs.mail as mail
+    utilisateurs.mail as mail,
+    moyens_paiement.nom as moyen,
+    moyens_paiement.couleur as mpc
   from autres_transactions
   inner join type_transactions
     on autres_transactions.id_type_transactions = type_transactions.id
@@ -770,6 +804,8 @@ function viz_transaction(PDO $bdd, int $id_point_vente, int $offset): array
     and autres_transactions.id_point_vente = :id_point_vente
   inner join utilisateurs
     on utilisateurs.id = autres_transactions.id_createur
+  left join moyens_paiement
+    on moyens_paiement.id = autres_transactions.id_moyen_paiement
   group by autres_transactions.id, autres_transactions.timestamp, type_transactions.nom,
   type_transactions.couleur, autres_transactions.commentaire,
   autres_transactions.last_hero_timestamp, utilisateurs.mail
@@ -891,6 +927,46 @@ function bilan_ventes(
   $stmt->closeCursor();
   return $bilan;
 }
+
+function bilan_transactions_espece(
+  PDO $bdd,
+  string $start,
+  string $stop,
+  int $id_point_vente = 0
+): array {
+  $cond = ($id_point_vente > 0 ? " AND ventes.id_point_vente = $id_point_vente " : ' ');
+  $sql = "SELECT
+    SUM(" . vendus_case_lot_unit() . ") as chiffre_degage_vente,
+    SUM(vendus.remboursement) as remb_somme
+    FROM ventes
+    INNER JOIN vendus
+    ON vendus.id_vente = ventes.id
+    WHERE DATE(ventes.timestamp) 
+    BETWEEN :du AND :au 
+    AND ventes.id_moyen_paiement = 1
+    $cond";
+  $sql2 = "SELECT 
+  SUM(autres_transactions.somme) as chiffre_degage_transaction
+  FROM autres_transactions
+  WHERE DATE(autres_transactions.timestamp) 
+  BETWEEN :du AND :au 
+  AND autres_transactions.id_moyen_paiement = 1
+  $cond";
+  $stmt = $bdd->prepare($sql);
+  $stmt2 = $bdd->prepare($sql2);
+  $stmt->bindValue(':du', $start, PDO::PARAM_STR);
+  $stmt->bindValue(':au', $stop, PDO::PARAM_STR);
+  $stmt2->bindValue(':du', $start, PDO::PARAM_STR);
+  $stmt2->bindValue(':au', $stop, PDO::PARAM_STR);
+  $stmt->execute();
+  $stmt2->execute();
+  $bilan = $stmt->fetch(PDO::FETCH_ASSOC);
+  $bilan2 = $stmt2->fetch(PDO::FETCH_ASSOC);
+  $stmt->closeCursor();
+  $stmt2->closeCursor();
+  return array_merge($bilan, $bilan2);
+}
+
 
 function types_transactions(PDO $bdd): array
 {

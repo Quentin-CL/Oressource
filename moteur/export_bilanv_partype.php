@@ -33,6 +33,7 @@ if (isset($_SESSION['id']) && $_SESSION['systeme'] === 'oressource' && (strpos($
   $time_fin = $date2ft->format('Y-m-d');
   $time_fin = $time_fin . ' 23:59:59';
 
+  $id_point_vente = intval($_GET['numero']);
   //Premiere ligne = nom des champs (
   // on affiche la periode visée
   if ($_GET['date1'] === $_GET['date2']) {
@@ -42,79 +43,43 @@ if (isset($_SESSION['id']) && $_SESSION['systeme'] === 'oressource' && (strpos($
     $csv_output = ' Du ' . $_GET['date1'] . ' au ' . $_GET['date2'] . "\t";
     $nomfich = "bilan_ventes_par_type_" . $_GET['date1'] . '_au_' . $_GET['date2'];
   }
+  $csv_output .= "\n\r";
+  $csv_output .= ($id_point_vente === 0 ? 'Pour tout les points de collecte' . "\t" : 'Pour le point numero:  ' . $id_point_vente . "\t");
+  $csv_output .= "\n\r";
+  $csv_output .= "\n\r";
+  $csv_output .= "\n\r";
+  $csv_output .= 'Type d\'objet:' . "\t" . 'Chiffre dégagé en €:' . "\t" . 'Masse pesée en kg' . "\t" . 'Quantité vendue:' . "\t" . 'Somme remboursée en €:' . "\t" . 'Quantité remboursée:';
+  $csv_output .= "\n\r";
+  $cond = ($id_point_vente > 0 ? " AND ventes.id_point_vente = $id_point_vente " : ' ');
+  $reponse = $bdd->prepare("SELECT
+  type_dechets.id as id,
+  type_dechets.couleur as couleur,
+  type_dechets.nom as nom,
+  SUM(case when vendus.lot > 0
+  then vendus.prix
+  else vendus.prix * vendus.quantite end ) as chiffre_degage,
+  COALESCE(SUM(pesees_vendus.masse*pesees_vendus.quantite), 0) as vendu_masse,
+  SUM(vendus.quantite) as vendu_quantite,
+  SUM(vendus.remboursement) as remb_somme,
+  SUM(case when vendus.remboursement > 0 then 1 else 0 end) as remb_quantite
+  FROM vendus
+  INNER JOIN type_dechets
+  ON vendus.id_type_dechet = type_dechets.id
+  INNER JOIN ventes
+  ON vendus.id_vente = ventes.id
+  LEFT JOIN pesees_vendus
+  ON pesees_vendus.id = vendus.id 
+  WHERE DATE(vendus.timestamp)
+  BETWEEN :du AND :au
+  $cond
+  GROUP BY type_dechets.id, type_dechets.couleur, type_dechets.nom");
+  $reponse->execute(['du' => $time_debut, 'au' => $time_fin]);
 
-  if ($_GET['numero'] === "0") {
-    $csv_output .= "\n\r";
-    $csv_output .= 'Pour tout les points de collecte' . "\t";
-    $csv_output .= "\n\r";
-    $csv_output .= "\n\r";
-    $csv_output .= "\n\r";
-    $csv_output .= 'Type d\'objet:' . "\t" . 'Chiffre dégagé en €:' . "\t" . 'Masse pesée en kg' . "\t" . 'Quantité vendue:' . "\t" . 'Somme remboursée en €:' . "\t" . 'Quantité remboursée:';
-    $csv_output .= "\n\r";
-    $reponse = $bdd->prepare("SELECT
-    type_dechets.id as id,
-    type_dechets.couleur as couleur,
-    type_dechets.nom as nom,
-    SUM(case when vendus.lot > 0
-    then vendus.prix
-    else vendus.prix * vendus.quantite end ) as chiffre_degage,
-    COALESCE(SUM(pesees_vendus.masse*pesees_vendus.quantite), 0) as vendu_masse,
-    SUM(vendus.quantite) as vendu_quantite,
-    SUM(vendus.remboursement) as remb_somme,
-    SUM(case when vendus.remboursement > 0 then 1 else 0 end) as remb_quantite
-    FROM vendus
-    INNER JOIN type_dechets
-    ON vendus.id_type_dechet = type_dechets.id
-    INNER JOIN ventes
-    ON vendus.id_vente = ventes.id
-    LEFT JOIN pesees_vendus
-    ON pesees_vendus.id = vendus.id 
-    WHERE DATE(vendus.timestamp)
-    BETWEEN :du AND :au
-    GROUP BY type_dechets.id, type_dechets.couleur, type_dechets.nom");
-    $reponse->execute(['du' => $time_debut, 'au' => $time_fin]);
-
-    while ($donnees = $reponse->fetch()) {
-      $csv_output .= $donnees['nom'] . "\t" . $donnees['chiffre_degage'] . "\t" . $donnees['vendu_masse'] . "\t" . $donnees['vendu_quantite'] - $donnees['remb_quantite'] . "\t" . $donnees['remb_somme'] . "\t" . $donnees['remb_quantite'] . "\n";
-    }
-    $reponse->closeCursor();
-  } else {
-    $csv_output .= "\n\r";
-    $csv_output .= 'Pour le point numero:  ' . $_GET['numero'] . "\t";
-    $csv_output .= "\n\r";
-    $csv_output .= "\n\r";
-    $csv_output .= "\n\r";
-    $csv_output .= 'Type d\'objet:' . "\t" . 'Chiffre dégagé en €:' . "\t" . 'Masse pesée en kg' . "\t" . 'Quantité vendue:' . "\t" . 'Somme remboursée en €:' . "\t" . 'Quantité remboursée:';
-    $csv_output .= "\n\r";
-    $reponse = $bdd->prepare("SELECT
-    type_dechets.id as id,
-    type_dechets.couleur as couleur,
-    type_dechets.nom as nom,
-    SUM(case when vendus.lot > 0
-    then vendus.prix
-    else vendus.prix * vendus.quantite end ) as chiffre_degage,
-    COALESCE(SUM(pesees_vendus.masse*pesees_vendus.quantite), 0) as vendu_masse,
-    SUM(vendus.quantite) as vendu_quantite,
-    SUM(vendus.remboursement) as remb_somme,
-    SUM(case when vendus.remboursement > 0 then 1 else 0 end) as remb_quantite
-    FROM vendus
-    INNER JOIN type_dechets
-    ON vendus.id_type_dechet = type_dechets.id
-    INNER JOIN ventes
-    ON vendus.id_vente = ventes.id
-    INNER JOIN pesees_vendus
-    ON pesees_vendus.id = vendus.id 
-    WHERE DATE(vendus.timestamp) 
-    BETWEEN :du AND :au 
-    AND ventes.id_point_vente = :numero
-    GROUP BY type_dechets.id, type_dechets.couleur, type_dechets.nom");
-    $reponse->execute(['du' => $time_debut, 'au' => $time_fin, 'numero' => $_GET['numero']]);
-
-    while ($donnees = $reponse->fetch()) {
-      $csv_output .= $donnees['nom'] . "\t" . $donnees['chiffre_degage'] . "\t" . $donnees['vendu_masse'] . "\t" . $donnees['vendu_quantite'] - $donnees['remb_quantite'] . "\t" . $donnees['remb_somme'] . "\t" . $donnees['remb_quantite'] . "\n";
-    }
-    $reponse->closeCursor();
+  while ($donnees = $reponse->fetch()) {
+    $quantite_vendu =  $donnees['vendu_quantite'] - $donnees['remb_quantite'];
+    $csv_output .= $donnees['nom'] . "\t" . $donnees['chiffre_degage'] . "\t" . $donnees['vendu_masse'] . "\t" . $quantite_vendu . "\t" . $donnees['remb_somme'] . "\t" . $donnees['remb_quantite'] . "\n";
   }
+  $reponse->closeCursor();
 
   $encoded_csv = mb_convert_encoding($csv_output, 'UTF-16LE', 'UTF-8');
   header('Content-Description: File Transfer');

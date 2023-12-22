@@ -39,10 +39,13 @@ if (is_valid_session() && is_allowed_verifications()) {
   autres_transactions.timestamp as timestamp,
   autres_transactions.somme as somme,
   type_transactions.nom as type,
+  type_transactions.id as type_id,
   type_transactions.couleur as couleur,
   autres_transactions.commentaire as commentaire,
   autres_transactions.last_hero_timestamp as lht,
-  utilisateurs.mail as mail
+  utilisateurs.mail as mail,
+  moyens_paiement.nom as moyen,
+  moyens_paiement.couleur as mpc
   from autres_transactions
   inner join type_transactions
   on autres_transactions.id_type_transactions = type_transactions.id
@@ -50,9 +53,12 @@ if (is_valid_session() && is_allowed_verifications()) {
   and autres_transactions.id_point_vente = :id_point_vente
   inner join utilisateurs
   on utilisateurs.id = autres_transactions.id_createur
+  left join moyens_paiement
+  on moyens_paiement.id = autres_transactions.id_moyen_paiement
   group by autres_transactions.id, autres_transactions.timestamp, type_transactions.nom,
   type_transactions.couleur, autres_transactions.commentaire,
   autres_transactions.last_hero_timestamp, utilisateurs.mail
+  order by autres_transactions.timestamp desc
 ');
   $req->bindParam(':id_point_vente', $numero, PDO::PARAM_INT);
   $req->bindParam(':du', $time_debut, PDO::PARAM_STR);
@@ -99,6 +105,7 @@ if (is_valid_session() && is_allowed_verifications()) {
           <th>#</th>
           <th>Moment de la transaction</th>
           <th>Type de transaction</th>
+          <th>Moyen de paiement</th>
           <th>Somme</th>
           <th>Commentaire</th>
           <th>Auteur</th>
@@ -115,12 +122,15 @@ if (is_valid_session() && is_allowed_verifications()) {
             <td><?= $t['id'] ?></td>
             <td><?= $t['timestamp']; ?></td>
             <td><span class="badge" style="background-color: <?= $t['couleur']; ?>"><?= $t['type']; ?></span></td>
+            <td><span class="badge" style="background-color: <?= $t['mpc']; ?>"><?= $t['moyen']; ?></span></td>
             <td><?= $t['somme'] ?></td>
             <td style="width:100px"><?= $t['commentaire']; ?></td>
             <td><?= $t['mail'] ?></td>
             <td>
               <form action="modification_verification_transaction.php?ntran=<?= $t['id']; ?>" method="post">
                 <input type="hidden" name="type" value="<?= $t['type']; ?>">
+                <input type="hidden" name="type_id" value="<?= $t['type_id']; ?>">
+                <input type="hidden" name="moyen" value="<?= $t['moyen']; ?>">
                 <input type="hidden" name="id" value="<?= $t['id']; ?>">
                 <input type="hidden" name="date1" value="<?= $date1 ?>">
                 <input type="hidden" name="date2" value="<?= $date2; ?>">

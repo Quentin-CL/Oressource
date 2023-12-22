@@ -57,6 +57,7 @@ if (is_valid_session() && $_SESSION['viz_caisse'] && is_allowed_vente_id($numero
           <th>Date de création</th>
           <th>Somme</th>
           <th>Type de transaction</th>
+          <th>Moyen de paiement</th>
           <th>Commentaire</th>
           <th>Auteur de la ligne</th>
         </tr>
@@ -69,6 +70,7 @@ if (is_valid_session() && $_SESSION['viz_caisse'] && is_allowed_vente_id($numero
             <td><?= $transaction['date_creation']; ?></td>
             <td><?= $transaction['somme']; ?></td>
             <td><span class="badge" style="background-color: <?= $transaction['couleur']; ?>"><?= $transaction['type']; ?></span></td>
+            <td><span class="badge" style="background-color: <?= $transaction['mpc']; ?>"><?= $transaction['moyen']; ?></span></td>
             <td><?= $transaction['commentaire']; ?></td>
             <td><?= $transaction['mail']; ?></td>
           </tr>

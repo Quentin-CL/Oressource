@@ -919,6 +919,7 @@ INSERT INTO `type_transactions` VALUES (1,'2023-02-01 00:00:00','Erreur de caiss
 
 UNLOCK TABLES;
 
+DROP TABLE IF EXISTS `autres_transactions`;
 
 CREATE TABLE `autres_transactions` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -926,6 +927,7 @@ CREATE TABLE `autres_transactions` (
   `somme` decimal(9,2) NOT NULL,
   `commentaire` text CHARACTER SET utf8 NOT NULL,
   `id_type_transactions` int(11) NOT NULL,
+  `id_moyen_paiement` int(11),
   `id_point_vente` int(11) NOT NULL,
   `id_createur` int(11) NOT NULL DEFAULT '0',
   `id_last_hero` int(11) NOT NULL DEFAULT '0',

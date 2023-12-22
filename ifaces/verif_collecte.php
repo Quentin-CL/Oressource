@@ -51,7 +51,8 @@ if (is_valid_session() && is_allowed_verifications()) {
       AND DATE(collectes.timestamp) BETWEEN :du AND :au
       GROUP BY collectes.id, collectes.commentaire, collectes.timestamp,
          collectes.last_hero_timestamp, type_collecte.nom, localites.nom,
-         collectes.id_createur, collectes.id_last_hero, localites.id');
+         collectes.id_createur, collectes.id_last_hero, localites.id
+      ORDER BY collectes.timestamp desc');
   $req->execute(['id_point_collecte' => $numero, 'du' => $time_debut, 'au' => $time_fin]);
   $collectes = $req->fetchAll(PDO::FETCH_ASSOC);
 

@@ -35,6 +35,7 @@ function transaction_insert(PDO $bdd, array $transaction)
       id_type_transactions,
       somme,
       commentaire,
+      id_moyen_paiement,
       id_point_vente,
       id_createur,
       id_last_hero
@@ -44,6 +45,7 @@ function transaction_insert(PDO $bdd, array $transaction)
       :id_type_transactions,
       :somme,
       :commentaire,
+      :id_moyen_paiement,
       :id_point,  
       :id_createur,
       :id_createur1)';
@@ -55,7 +57,9 @@ function transaction_insert(PDO $bdd, array $transaction)
   $req->bindValue(':id_point', $transaction['id_point'], PDO::PARAM_INT);
   $somme = parseFloat($transaction['somme']);
   $type = parseInt($transaction['id_type']);
+  $moyenPaiement = ($type === 1 ? NULL : parseInt($transaction['id_moyen']));
   if ($somme >= 0.000 || $type === 1) {
+    $req->bindValue(':id_moyen_paiement', $moyenPaiement);
     $req->bindValue(':somme', $somme, PDO::PARAM_STR);
     $req->bindValue(':commentaire', $transaction['commentaire'], PDO::PARAM_STR);
     $req->bindValue(':id_type_transactions', $type, PDO::PARAM_INT);
@@ -82,7 +86,7 @@ if (is_valid_session()) {
   }
 
   try {
-    $json['date'] = allowDate($json) ? parseDate($json['date']) : new DateTime('now');
+    $json['date'] = new DateTime('now');
   } catch (UnexpectedValueException $ex) {
     http_response_code(400); // Bad Request
     echo (json_encode(['error' => $ex->getMessage()]));

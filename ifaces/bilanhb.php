@@ -235,7 +235,7 @@ if (is_valid_session() && is_allowed_bilan()) {
         <ul class="nav nav-tabs">
           <li><a href="bilanc.php?numero=0&date1=<?= $date1 ?>&date2=<?= $date2 ?>">Collectes</a></li>
           <li class="active"><a>Sorties hors-boutique</a></li>
-          <li><a href="bilanv.php?numero=0&date1=<?= $date1 ?>&date2=<?= $date2 ?>">Ventes</a></li>
+          <li><a href="bilanv.php?numero=0&date1=<?= $date1 ?>&date2=<?= $date2 ?>">Recettes</a></li>
         </ul>
       </div>
     </div>

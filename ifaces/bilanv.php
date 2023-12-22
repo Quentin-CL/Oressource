@@ -80,7 +80,7 @@ if (is_valid_session() && is_allowed_bilan()) {
           <li>
             <a href="bilanhb.php?<?= $date_query; ?>&numero=0">Sorties hors-boutique</a>
           </li>
-          <li class="active"><a href="#">Ventes</a></li>
+          <li class="active"><a href="#">Recettes</a></li>
         </ul>
       </div>
     </div> <!-- row -->
@@ -89,7 +89,7 @@ if (is_valid_session() && is_allowed_bilan()) {
   <hr />
   <div class="row">
     <div class="col-md-8 col-md-offset-1">
-      <h2>Bilan des ventes de la structure</h2>
+      <h2>Bilan des recettes de la structure</h2>
       <ul class="nav nav-tabs">
         <?php foreach ($points_ventes as $point_vente) { ?>
           <li class="<?= ($numero == $point_vente['id'] ? 'active' : ''); ?>">
@@ -188,6 +188,7 @@ if (is_valid_session() && is_allowed_bilan()) {
                   <tr>
                     <th>Moyen de Paiement</th>
                     <th>Nombre de Ventes</th>
+                    <th>Nombre de Transactions</th>
                     <th>Chiffre Dégagé en €</th>
                     <th>Somme remboursée en €</th>
                   </tr>
@@ -197,9 +198,22 @@ if (is_valid_session() && is_allowed_bilan()) {
                   <?php foreach ($chiffre_affaire as $ligne) { ?>
                     <tr>
                       <td><?= $ligne['moyen']; ?></td>
-                      <td><?= $ligne['quantite_vendue']; ?></td>
-                      <td><?= $ligne['total']; ?></td>
-                      <td><?= $ligne['remboursement']; ?></td>
+                      <?php if (isset($ligne['total_vendue']) && isset($ligne['total_transaction'])) { ?>
+                        <td><?= $ligne['quantite_vendue'] ?></td>
+                        <td><?= $ligne['quantite_transaction'] ?></td>
+                        <td><?= $ligne['total_vendue'] + $ligne['total_transaction']; ?></td>
+                        <td><?= $ligne['remboursement']; ?></td>
+                      <?php } else if (isset($ligne['total_vendue'])) { ?>
+                        <td><?= $ligne['quantite_vendue'] ?></td>
+                        <td>0</td>
+                        <td><?= $ligne['total_vendue'] ?></td>
+                        <td><?= $ligne['remboursement']; ?></td>
+                      <?php } else { ?>
+                        <td>0</td>
+                        <td><?= $ligne['quantite_transaction'] ?></td>
+                        <td><?= $ligne['total_transaction'] ?></td>
+                        <td>0.00</td>
+                      <?php } ?>
                     </tr>
                   <?php } ?>
                 </tbody>
@@ -263,7 +277,6 @@ if (is_valid_session() && is_allowed_bilan()) {
                   <?php foreach ($bilans_transactions as $id => $bilan_transaction) { ?>
                     <tr>
                       <th scope="row">
-                        <!-- <a href="./jours.php?<?= $date_query; ?>&type=<?= $id; ?>"><?= $bilan_transaction['nom']; ?></a> -->
                         <?= $bilan_transaction['nom']; ?>
                       </th>
                       <td><?= $bilan_transaction['chiffre_degage']; ?></td>

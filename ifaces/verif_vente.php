@@ -65,7 +65,8 @@ if (is_valid_session() && is_allowed_verifications()) {
     ventes.id_last_hero,
     ventes.commentaire,
     moyens_paiement.nom,
-    moyens_paiement.couleur');
+    moyens_paiement.couleur
+  ORDER BY ventes.timestamp desc');
   $req->bindParam(':id_point_vente', $numero, PDO::PARAM_INT);
   $req->bindParam(':du', $time_debut, PDO::PARAM_STR);
   $req->bindParam(':au', $time_fin, PDO::PARAM_STR);

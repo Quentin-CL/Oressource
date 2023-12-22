@@ -20,6 +20,8 @@
 
 session_start();
 if (isset($_SESSION['id']) && $_SESSION['systeme'] === 'oressource' && (strpos($_SESSION['niveau'], 'bi') !== false)) {
+  $id_point_collecte = intval($_GET['numero']);
+  require_once '../moteur/dbconfig.php';
 
   //on convertit les deux dates en un format compatible avec la bdd
 
@@ -41,96 +43,48 @@ if (isset($_SESSION['id']) && $_SESSION['systeme'] === 'oressource' && (strpos($
     $csv_output = ' Du ' . $_GET['date1'] . ' au ' . $_GET['date2'] . "\t";
   }
 
-  if ($_GET['numero'] === "0") {
+  $csv_output .= "\n\r";
+  $csv_output .= ($id_point_collecte === 0 ? 'Pour tout les points de collecte' . "\t" : 'Pour le point numero:  ' . $id_point_collecte . "\t");
+  $csv_output .= "\n\r";
+  $csv_output .= "\n\r";
+  $csv_output .= "\n\r";
+  $csv_output .= 'localité:' . "\t" . 'masse collecté:' . "\t" . 'nombre de collectes:' . "\t";
+  $csv_output .= "\n\r";
+  $cond = ($id_point_collecte > 0 ? " AND collectes.id_point_collecte = $id_point_collecte " : ' ');
+  $reponse = $bdd->prepare("SELECT
+    localites.nom,SUM(pesees_collectes.masse) somme,localites.id id,COUNT(distinct collectes.id) ncol
+    FROM pesees_collectes,collectes,localites
+    WHERE pesees_collectes.timestamp BETWEEN :du AND :au AND
+    localites.id =  collectes.localisation AND pesees_collectes.id_collecte = collectes.id
+    $cond
+    GROUP BY id");
+  $reponse->execute(['du' => $time_debut, 'au' => $time_fin]);
+
+  while ($donnees = $reponse->fetch()) {
+    $csv_output .= $donnees['nom'] . "\t" . $donnees['somme'] . "\t" . $donnees['ncol'] . "\t" . "\n";
+    $reponse2 = $bdd->prepare("SELECT localites.couleur,type_dechets.nom, sum(pesees_collectes.masse) somme
+      FROM type_dechets,pesees_collectes ,localites , collectes
+      WHERE pesees_collectes.timestamp BETWEEN :du AND :au
+      AND type_dechets.id = pesees_collectes.id_type_dechet
+      AND localites.id =  collectes.localisation AND pesees_collectes.id_collecte = collectes.id
+      AND localites.id = :id_loc
+      $cond
+      GROUP BY nom
+      ORDER BY somme DESC");
+    $reponse2->execute(['du' => $time_debut, 'au' => $time_fin, 'id_loc' => $donnees['id']]);
+
+    $csv_output .= 'objets collectés pour cette localité:' . "\t" . 'masse collecté:' . "\t";
     $csv_output .= "\n\r";
-    $csv_output .= 'Pour tout les points de collecte' . "\t";
-    $csv_output .= "\n\r";
-    $csv_output .= "\n\r";
-    $csv_output .= "\n\r";
-    $csv_output .= 'localité:' . "\t" . 'masse collecté:' . "\t" . 'nombre de collectes:' . "\t";
-    $csv_output .= "\n\r";
-    require_once '../moteur/dbconfig.php';
-    $reponse = $bdd->prepare('SELECT
-      localites.nom,SUM(pesees_collectes.masse) somme,pesees_collectes.timestamp,localites.id id,COUNT(distinct collectes.id) ncol
-      FROM pesees_collectes,collectes,localites
-      WHERE pesees_collectes.timestamp BETWEEN :du AND :au AND
-      localites.id =  collectes.localisation AND pesees_collectes.id_collecte = collectes.id
-      GROUP BY id');
-    $reponse->execute(['du' => $time_debut, 'au' => $time_fin]);
 
-    while ($donnees = $reponse->fetch()) {
-      $csv_output .= $donnees['nom'] . "\t" . $donnees['somme'] . "\t" . $donnees['ncol'] . "\t" . "\n";
-      require_once '../moteur/dbconfig.php';
-
-      $reponse2 = $bdd->prepare('SELECT localites.couleur,type_dechets.nom, sum(pesees_collectes.masse) somme
-        FROM type_dechets,pesees_collectes ,localites , collectes
-        WHERE pesees_collectes.timestamp BETWEEN :du AND :au
-        AND type_dechets.id = pesees_collectes.id_type_dechet
-        AND localites.id =  collectes.localisation AND pesees_collectes.id_collecte = collectes.id
-        AND localites.id = :id_loc
-        GROUP BY nom
-        ORDER BY somme DESC');
-      $reponse2->execute(['du' => $time_debut, 'au' => $time_fin, 'id_loc' => $donnees['id']]);
-
-      $csv_output .= 'objets collectés pour cette localité:' . "\t" . 'masse collecté:' . "\t";
-      $csv_output .= "\n\r";
-
-      while ($donnees2 = $reponse2->fetch()) {
-        $csv_output .= $donnees2['nom'] . "\t" . $donnees2['somme'] . "\t" . "\n";
-      }
-
-      $reponse2->closeCursor();
-
-      $csv_output .= "\n\r";
+    while ($donnees2 = $reponse2->fetch()) {
+      $csv_output .= $donnees2['nom'] . "\t" . $donnees2['somme'] . "\t" . "\n";
     }
-    $reponse->closeCursor();
-  } else {
+
+    $reponse2->closeCursor();
+
     $csv_output .= "\n\r";
-    $csv_output .= ' pour le point numero:  ' . $_GET['numero'] . "\t";
-    $csv_output .= "\n\r";
-    $csv_output .= "\n\r";
-    $csv_output .= "\n\r";
-    $csv_output .= 'localité:' . "\t" . 'masse collecté:' . "\t" . 'nombre de collectes:' . "\t";
-    $csv_output .= "\n\r";
-
-    // on determine les masses totales collèctés sur cete periode(pour un point donné)
-    require_once '../moteur/dbconfig.php';
-    $reponse = $bdd->prepare('SELECT
-      localites.nom,SUM(pesees_collectes.masse) somme,pesees_collectes.timestamp,localites.id,COUNT(distinct collectes.id) ncol
-      FROM pesees_collectes,collectes,localites
-      WHERE pesees_collectes.timestamp BETWEEN :du AND :au AND
-      localites.id =  collectes.localisation AND pesees_collectes.id_collecte = collectes.id
-      AND collectes.id_point_collecte = :numero
-      GROUP BY id');
-
-    $reponse->execute(['du' => $time_debut, 'au' => $time_fin, 'numero' => $_GET['numero']]);
-
-    while ($donnees = $reponse->fetch()) {
-      $csv_output .= $donnees['nom'] . "\t" . $donnees['somme'] . "\t" . $donnees['ncol'] . "\t" . "\n";
-
-      require_once '../moteur/dbconfig.php';
-
-      $reponse2 = $bdd->prepare('SELECT type_dechets.couleur,type_dechets.nom, sum(pesees_collectes.masse) somme
-        FROM type_dechets,pesees_collectes ,type_collecte , collectes
-        WHERE pesees_collectes.timestamp BETWEEN :du AND :au
-        AND type_dechets.id = pesees_collectes.id_type_dechet
-        AND type_collecte.id =  collectes.id_type_collecte AND pesees_collectes.id_collecte = collectes.id
-        AND type_collecte.id = :id_type_collecte AND collectes.id_point_collecte = :numero
-        GROUP BY nom
-        ORDER BY somme DESC');
-      $reponse2->execute(['du' => $time_debut, 'au' => $time_fin, 'numero' => $_GET['numero'], 'id_type_collecte' => $donnees['id']]);
-      $csv_output .= 'objets collectés pour cette localité:' . "\t" . 'masse collecté:' . "\t";
-      $csv_output .= "\n\r";
-
-      while ($donnees2 = $reponse2->fetch()) {
-        $csv_output .= $donnees2['nom'] . "\t" . $donnees2['somme'] . "\t" . "\n";
-      }
-      $reponse2->closeCursor();
-
-      $csv_output .= "\n\r";
-    }
-    $reponse->closeCursor();
   }
+  $reponse->closeCursor();
 
   //=====================================================================================================================================
   $encoded_csv = mb_convert_encoding($csv_output, 'UTF-16LE', 'UTF-8');

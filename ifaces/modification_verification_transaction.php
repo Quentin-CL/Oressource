@@ -49,23 +49,35 @@ if (is_valid_session() && is_allowed_verifications()) {
           <input type="hidden" name="date1" value="<?= $_POST['date1']; ?>">
           <input type="hidden" name="date2" value="<?= $_POST['date2']; ?>">
           <input type="hidden" name="npoint" value="<?= $_POST['npoint']; ?>">
+          <input type="hidden" name="type_id" value="<?= $_POST['type_id']; ?>">
 
-          <div class="col-md-3">
+          <div class="col-md-2">
             <label for="datetime">Date de création :</label>
             <input type="datetime-local" name="datetime" id="datetime" max="<?= $mysql_nowDate ?>" value="<?= $timestamp ?>">
           </div>
 
-          <div class="col-md-3">
+          <div class="col-md-2">
             <label for="somme">Somme perçue :</label>
-            <input type="number" name="somme" id="somme" value="<?= $somme ?>">
+            <input type="text" name="somme" id="somme" value="<?= $somme ?>">
           </div>
 
-          <div class="col-md-3">
+          <?php if ($_POST['type_id'] !== '1') { ?>
+            <div class="col-md-2">
+              <label for="moyen">Moyen de paiement:</label>
+              <select name="moyen" id="moyen" class="form-control " required>
+                <?php foreach (filter_visibles(moyens_paiements($bdd)) as $m) { ?>
+                  <option <?= $_POST['moyen'] === $m['nom'] ? 'selected' : '' ?> value="<?= $m['id']; ?>"><?= $m['nom']; ?></option>
+                <?php } ?>
+              </select>
+            </div>
+          <?php } ?>
+
+          <div class="col-md-2">
             <label for="commentaire">Commentaire :</label>
             <textarea name="commentaire" id="commentaire" class="form-control"><?= $commentaire ?></textarea>
           </div>
 
-          <div class="col-md-3">
+          <div class="col-md-2">
             <br>
             <button name="creer" class="btn btn-warning">Modifier</button>
             <a href="verif_vente.php?date1=<?= $_POST['date1']; ?>&date2=<?= $_POST['date2']; ?>&numero=<?= $_POST['npoint']; ?>">

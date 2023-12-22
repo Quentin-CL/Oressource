@@ -183,7 +183,7 @@ if (is_valid_session() && is_allowed_bilan()) {
         <ul class="nav nav-tabs">
           <li class="active"><a>Collectes</a></li>
           <li><a href="bilanhb.php?numero=0&date1=<?= $date1 ?>&date2=<?= $date2 ?>">Sorties hors-boutique</a></li>
-          <li><a href="bilanv.php?numero=0&date1=<?= $date1 ?>&date2=<?= $date2 ?>">Ventes</a></li>
+          <li><a href="bilanv.php?numero=0&date1=<?= $date1 ?>&date2=<?= $date2 ?>">Recettes</a></li>
         </ul>
       </div>
     </div>
@@ -238,8 +238,8 @@ if (is_valid_session() && is_allowed_bilan()) {
 
                 <div id="graph2masse" style="height: 180px;"></div> <br><br>
 
-                <a href="../moteur/export_bilanc_partype.php?numero=<?= $numero ?>&date1=<?= $date1 ?>&date2=<?= $date2 ?>">
-                  <button type="button" class="btn btn-default btn-xs" disabled>Exporter ces données (.csv)</button>
+                <a class="btn btn-default btn-xs" href="../moteur/export_bilanc_partype.php?numero=<?= $numero ?>&date1=<?= $date1 ?>&date2=<?= $date2 ?>">
+                  Exporter ces données (.csv)
                 </a>
 
               </div>
@@ -330,8 +330,8 @@ if (is_valid_session() && is_allowed_bilan()) {
 
                 <div id="graphloca" style="height: 180px;"></div>
 
-                <a href="../moteur/export_bilanc_parloca.php?numero=<?= $numero ?>&date1=<?= $date1 ?>&date2=<?= $date2; ?>">
-                  <button type="button" class="btn btn-default btn-xs" disabled>Exporter ces données (.csv) </button>
+                <a class="btn btn-default btn-xs" href="../moteur/export_bilanc_parloca.php?numero=<?= $numero ?>&date1=<?= $date1 ?>&date2=<?= $date2; ?>">
+                  Exporter ces données (.csv)
                 </a>
 
               </div>

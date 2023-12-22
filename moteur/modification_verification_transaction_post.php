@@ -22,13 +22,15 @@ session_start();
 if (isset($_SESSION['id']) && $_SESSION['systeme'] === 'oressource' && (strpos($_SESSION['niveau'], 'h') !== false)) {
   require_once '../moteur/dbconfig.php';
   $timestamp = str_replace('T', ' ', $_POST["datetime"]) . ':00';
-  $req = $bdd->prepare('UPDATE autres_transactions AS at
+  $moyen = ($_POST['type_id'] === '1' ? '' : 'at.id_moyen_paiement = ' . $_POST['moyen'] . ',');
+  $req = $bdd->prepare("UPDATE autres_transactions AS at
   SET at.commentaire = :commentaire, 
   at.id_last_hero = :id_last_hero, 
   at.last_hero_timestamp = NOW(), 
+  $moyen
   at.somme = :somme,
   at.timestamp = :timestamp
-  WHERE at.id = :id');
+  WHERE at.id = :id");
   $req->bindParam(':timestamp', $timestamp, PDO::PARAM_STR);
   $req->bindValue(':id', $_POST['id'], PDO::PARAM_INT);
   $req->bindValue(':id_last_hero', $_SESSION['id'], PDO::PARAM_INT);
